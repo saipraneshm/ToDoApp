@@ -1,6 +1,6 @@
 package com.codepath.preassignment.todoapp.database;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -15,6 +15,17 @@ public class ToDoListItem {
     private String mAssignedTo;
     private UUID mId;
     private String mDateCreated;
+
+    //Automatically generates a unique sequence
+    public ToDoListItem(){
+        mId = UUID.randomUUID();
+    }
+
+    //Constructor to retrieve a todoList item
+    public ToDoListItem(UUID id){
+        mId = id;
+    }
+
 
     public String getTitle() {
         return mTitle;

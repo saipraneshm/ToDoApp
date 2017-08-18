@@ -18,23 +18,32 @@ import java.util.UUID;
 
 public class ToDoListDB {
 
+    private static ToDoListDB sToDoListDB;
     private Context mContext;
     private SQLiteDatabase mDatabase;
     private static final String TAG = ToDoListDB.class.getSimpleName();
 
-    public ToDoListDB(Context context){
+    private ToDoListDB(Context context){
         mContext = context.getApplicationContext();
         mDatabase = new ToDoListDBHelper(mContext).getWritableDatabase();
     }
 
-    private ContentValues getContentValues(ToDoListItem item){
+    public static ToDoListDB get(Context context){
+        if(sToDoListDB == null){
+            sToDoListDB = new ToDoListDB(context);
+        }
+        return sToDoListDB;
+    }
+
+    private static ContentValues getContentValues(ToDoListItem item){
         ContentValues contentValues = new ContentValues();
+
+        contentValues.put(ToDoListTable.COLS.UUID, String.valueOf(item.getId()));
         contentValues.put(ToDoListTable.COLS.TITLE, item.getTitle());
         contentValues.put(ToDoListTable.COLS.BODY, item.getBody());
         contentValues.put(ToDoListTable.COLS.ASSIGNED_TO, item.getAssignedTo());
         contentValues.put(ToDoListTable.COLS.DATE_CREATED, item.getDateCreated());
         contentValues.put(ToDoListTable.COLS.DATE_UPDATED, item.getLastUpdated());
-        contentValues.put(ToDoListTable.COLS.UUID, String.valueOf(item.getId()));
 
         return contentValues;
     }
@@ -42,6 +51,7 @@ public class ToDoListDB {
     public void addItem(ToDoListItem item){
         ContentValues contentValues = getContentValues(item);
         mDatabase.insert(ToDoListTable.NAME, null, contentValues);
+        //Log.d(TAG,"Result for inserting into the database : " + result);
     }
 
     public void deleteItem(ToDoListItem item){
@@ -57,7 +67,7 @@ public class ToDoListDB {
                 whereArgs,
                 null,
                 null,
-                null);
+                ToDoListTable.COLS.DATE_CREATED);
         return new ToDoListCursorWrapper(cursor);
     }
 

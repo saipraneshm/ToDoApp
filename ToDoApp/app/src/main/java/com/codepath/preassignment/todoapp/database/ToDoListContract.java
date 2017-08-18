@@ -16,12 +16,12 @@ public final class ToDoListContract {
             public static final String NAME = "todoListTable";
 
             public static class COLS {
+                public static final String UUID = "uuid";
                 public static final String TITLE = "title";
                 public static final String BODY = "body";
                 public static final String ASSIGNED_TO  = "assignedTo";
                 public static final String DATE_CREATED = "dateCreated";
                 public static final String DATE_UPDATED = "dateUpdated";
-                public static final String UUID = "uuid";
             }
         }
     }
