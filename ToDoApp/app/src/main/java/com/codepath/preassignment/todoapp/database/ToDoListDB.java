@@ -54,9 +54,9 @@ public class ToDoListDB {
         //Log.d(TAG,"Result for inserting into the database : " + result);
     }
 
-    public void deleteItem(ToDoListItem item){
+    public void deleteItem(UUID mId){
         int result = mDatabase.delete(ToDoListTable.NAME, ToDoListTable.COLS.UUID + " = ?",
-                new String[]{item.getId().toString()});
+                new String[]{mId.toString()});
         Log.d(TAG, "Result of deleting a record: " + result);
     }
 

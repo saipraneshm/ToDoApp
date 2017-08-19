@@ -48,6 +48,7 @@
             app:layout_constraintVertical_bias="0.0"/>
 
         <android.support.v7.widget.Toolbar
+            android:visibility="gone"
             android:id="@+id/dialog_item_toolbar"
             app:title="@string/add_new_item"
             android:layout_width="0dp"

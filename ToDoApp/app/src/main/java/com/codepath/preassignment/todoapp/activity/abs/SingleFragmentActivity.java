@@ -1,4 +1,4 @@
-package com.codepath.preassignment.todoapp.activity;
+package com.codepath.preassignment.todoapp.activity.abs;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -25,7 +25,9 @@ public abstract class SingleFragmentActivity extends AppCompatActivity {
 
         if(fragment == null){
             fragment = createFragment();
-            fm.beginTransaction().replace(R.id.fragment_container,fragment).commit();
+            fm.beginTransaction()
+                    .replace(R.id.fragment_container,fragment)
+                    .commit();
         }
 
 

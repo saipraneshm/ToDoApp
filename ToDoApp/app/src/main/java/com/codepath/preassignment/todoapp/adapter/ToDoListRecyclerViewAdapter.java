@@ -5,6 +5,7 @@ import android.databinding.DataBindingUtil;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,9 +47,8 @@ public class ToDoListRecyclerViewAdapter extends
     @Override
     public ToDoListItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        TodoItemLayoutBinding binding = DataBindingUtil
-                .inflate(inflater, R.layout.todo_item_layout, parent, false);
-        return new ToDoListItemViewHolder(binding);
+        View view = inflater.inflate(R.layout.todo_item_layout, parent, false);
+        return new ToDoListItemViewHolder(view);
     }
 
     @Override
@@ -63,8 +63,13 @@ public class ToDoListRecyclerViewAdapter extends
 
     public void updateItems(List<ToDoListItem> items){
         if(items != null){
-            mToDoListItems = items;
+            mToDoListItems.clear();
+            mToDoListItems.addAll(items);
             if(mToDoListItems.size() > 0){
+                //Log.d("CHECK", "calling notifydatasetchanged");
+                for(ToDoListItem item : items){
+                    Log.d("CHECK", item.getTitle()  + " <- checking this item");
+                }
                 notifyDataSetChanged();
             }
         }
@@ -74,26 +79,24 @@ public class ToDoListRecyclerViewAdapter extends
 
         AppCompatTextView mTextView;
         ToDoListItem mItem;
-        TodoItemLayoutBinding mBinding;
 
-        public ToDoListItemViewHolder(TodoItemLayoutBinding binding) {
-            super(binding.getRoot());
-            mBinding = binding;
-            mTextView = mBinding.itemTitleTv;
+        public ToDoListItemViewHolder(View binding) {
+            super(binding);
+            mTextView = (AppCompatTextView) binding.findViewById(R.id.item_title_tv);
             itemView.setOnClickListener(this);
-            mBinding.setViewModel(new ToDoListItemViewModel(ToDoListDB.get(mContext)));
         }
 
         void bindItem(ToDoListItem item){
             if(item != null){
-                mBinding.getViewModel().setToDoListItem(item);
-                mBinding.executePendingBindings();
+                mItem = item;
+                mTextView.setText(mItem.getTitle());
             }
         }
 
         @Override
         public void onClick(View view) {
-            mOnItemClickListener.onItemSelected(mItem.getId(),getAdapterPosition());
+            if(mItem != null)
+                mOnItemClickListener.onItemSelected(mItem.getId(),getAdapterPosition());
         }
     }
 

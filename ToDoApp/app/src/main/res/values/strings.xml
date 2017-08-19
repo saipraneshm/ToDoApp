@@ -5,7 +5,9 @@
     <string name="sample_title">Sample title</string>
     <string name="note_title">Title</string>
     <string name="take_a_note">Note</string>
-    <string name="add_new_item">Add Note</string>
-    <string name="edit_existing_item">Edit Note</string>
+    <string name="add_new_item">New Item</string>
+    <string name="edit_existing_item">Edit Item</string>
     <string name="save_note">Save</string>
+    <string name="delete_existing_item">Delete item</string>
+    <string name="save_existing_item">Save Item</string>
 </resources>
