@@ -22,6 +22,9 @@ public final class ToDoListContract {
                 public static final String ASSIGNED_TO  = "assignedTo";
                 public static final String DATE_CREATED = "dateCreated";
                 public static final String DATE_UPDATED = "dateUpdated";
+                public static final String DUE_DATE = "dueDate";
+                public static final String PRIORITY = "priority";
+
             }
         }
     }

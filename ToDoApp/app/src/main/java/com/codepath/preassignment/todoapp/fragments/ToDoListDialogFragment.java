@@ -15,7 +15,6 @@ import android.view.LayoutInflater;
 import com.codepath.preassignment.todoapp.R;
 import com.codepath.preassignment.todoapp.database.ToDoListDB;
 import com.codepath.preassignment.todoapp.database.ToDoListItem;
-import com.codepath.preassignment.todoapp.databinding.DialogTodoItemBinding;
 
 import java.util.UUID;
 
@@ -49,9 +48,9 @@ public class ToDoListDialogFragment extends DialogFragment {
     }
 
 
-    @Nullable
-    @Override
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+  /*  @Nullable
+    @Override*/
+  /*  public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 
         if(getArguments() != null){
             mId = (UUID) getArguments().getSerializable(ARGS_ITEM_ID);
@@ -62,8 +61,8 @@ public class ToDoListDialogFragment extends DialogFragment {
 
         mToDoListDB = ToDoListDB.get(getActivity());
 
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
-        final DialogTodoItemBinding binding = DataBindingUtil
+          LayoutInflater inflater = LayoutInflater.from(getActivity());
+      final DialogTodoItemBinding binding = DataBindingUtil
                 .inflate(inflater, R.layout.dialog_todo_item, null, false);
 
         if(isNewNote){
@@ -96,7 +95,7 @@ public class ToDoListDialogFragment extends DialogFragment {
                 .setNegativeButton(android.R.string.cancel,null)
                 .create();
 
-    }
+    }*/
 
     private void sendResult(int resultCode, int adapterPosition){
         if(getTargetFragment() == null){ return;}

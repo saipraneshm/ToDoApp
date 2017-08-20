@@ -25,10 +25,11 @@ public class ToDoListDialogActivity extends SingleFragmentActivity {
     @Override
     protected Fragment createFragment() {
         UUID uuid = (UUID) getIntent().getSerializableExtra(ARGS_UUID);
-        if(uuid != null){
+        return null;
+        /*if(uuid != null){
             return ToDoListFullScreenDialogFragment.newInstance(uuid);
         }else{
             return ToDoListFullScreenDialogFragment.newInstance();
-        }
+        }*/
     }
 }

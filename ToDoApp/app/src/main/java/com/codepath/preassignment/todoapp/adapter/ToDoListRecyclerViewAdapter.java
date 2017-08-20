@@ -2,6 +2,7 @@ package com.codepath.preassignment.todoapp.adapter;
 
 import android.content.Context;
 import android.databinding.DataBindingUtil;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -13,9 +14,10 @@ import android.view.ViewGroup;
 import com.codepath.preassignment.todoapp.R;
 import com.codepath.preassignment.todoapp.database.ToDoListDB;
 import com.codepath.preassignment.todoapp.database.ToDoListItem;
-import com.codepath.preassignment.todoapp.databinding.TodoItemLayoutBinding;
-import com.codepath.preassignment.todoapp.viewmodel.ToDoListItemViewModel;
 
+
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -89,7 +91,7 @@ public class ToDoListRecyclerViewAdapter extends
         void bindItem(ToDoListItem item){
             if(item != null){
                 mItem = item;
-                mTextView.setText(mItem.getTitle());
+                mTextView.setText(item.getTitle());
             }
         }
 

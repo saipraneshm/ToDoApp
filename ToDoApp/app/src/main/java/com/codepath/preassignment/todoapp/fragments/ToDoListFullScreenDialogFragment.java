@@ -1,14 +1,13 @@
 package com.codepath.preassignment.todoapp.fragments;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.DialogFragment;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,13 +27,20 @@ import java.util.UUID;
 public class ToDoListFullScreenDialogFragment extends DialogFragment implements View.OnClickListener {
 
 
+    private static final String TAG = ToDoListFullScreenDialogFragment.class.getSimpleName();
+    private static final String ARGS_IS_NEW_NOTE = "ISNEWNOTE";
     private Toolbar mDialogToolbar;
     private TextInputEditText mTitleEditText, mDueDateEditText, mDueTimeEditText, mPriorityEditText,
     mItemDescEditText, mItemStatusDesc;
     private ToDoListDB mToDoListDB;
-    private static final String ARGS_ITEM_ID = "itemId";
+    private static final String ARGS_ITEM = "itemId";
     private UUID mId;
     private boolean isNewNote = false;
+    public enum DialogAction{
+        ADD,
+        DELETE,
+        EDIT;
+    }
 
     MenuItem editItem;
     MenuItem saveItem;
@@ -43,37 +49,39 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
 
 
     boolean valuesChanged = false;
+    private OnDialogChangeListener mChangeListener;
+    private ToDoListItem mToDoListItem;
 
-    public static ToDoListFullScreenDialogFragment newInstance(UUID id){
+    public interface OnDialogChangeListener{
+        void onDialogClose(ToDoListItem modifiedItem, DialogAction action);
+    }
+
+    public static ToDoListFullScreenDialogFragment newInstance(ToDoListItem listItem, boolean isNewNote){
         Bundle args = new Bundle();
-        args.putSerializable(ARGS_ITEM_ID,id);
+        args.putParcelable(ARGS_ITEM,listItem);
+        args.putBoolean(ARGS_IS_NEW_NOTE, isNewNote);
 
         ToDoListFullScreenDialogFragment dialogFragment = new ToDoListFullScreenDialogFragment();
         dialogFragment.setArguments(args);
         return dialogFragment;
     }
 
-    public static ToDoListFullScreenDialogFragment newInstance(){
-        return new ToDoListFullScreenDialogFragment();
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setStyle(STYLE_NO_FRAME,R.style.AppTheme_NoActionBar);
         mToDoListDB = ToDoListDB.get(getActivity());
-        if(getArguments() != null){
-            mId = (UUID) getArguments().getSerializable(ARGS_ITEM_ID);
-        }else{
-            isNewNote = true;
+        if(getArguments() != null) {
+            mToDoListItem = getArguments().getParcelable(ARGS_ITEM);
+            isNewNote = getArguments().getBoolean(ARGS_IS_NEW_NOTE);
         }
-
-
     }
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_full_screen, container, false);
         mTitleEditText = (TextInputEditText) view.findViewById(R.id.title_edit_text);
         mDueDateEditText = (TextInputEditText)view.findViewById(R.id.due_date_edit_text);
@@ -86,7 +94,7 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         mDialogToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getActivity().finish();
+                dismiss();
             }
         });
 
@@ -104,8 +112,8 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
                         saveItem.setVisible(true);
                         break;
                     case R.id.action_delete_item:
-                        deleteNote();
-                        getActivity().finish();
+                        handleAction(DialogAction.DELETE);
+                        dismiss();
                         break;
                     case R.id.action_save_item:
                         saveAllFields();
@@ -127,20 +135,16 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
             saveItem.setVisible(false);
             editItem.setVisible(true);
             mDialogToolbar.setTitle(R.string.edit_existing_item);
-            updateUI(mId);
+            updateUI();
         }
         return view;
     }
 
-    private void updateUI(UUID id) {
-        if(id != null){
-            ToDoListItem item = mToDoListDB.getItem(id);
-            if(item != null){
-                mTitleEditText.setText(item.getTitle());
-                mItemDescEditText.setText(item.getBody());
-            }
+    private void updateUI() {
+        if(mToDoListItem != null){
+            mTitleEditText.setText(mToDoListItem.getTitle());
+            mItemDescEditText.setText(mToDoListItem.getBody());
         }
-
     }
 
     private void enableAllFields() {
@@ -182,43 +186,36 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
 
     private void saveAllFields(){
         if(isNewNote){
-            addNewNote();
+            handleAction(DialogAction.ADD);
         }else{
-            editNote();
+            handleAction(DialogAction.EDIT);
         }
-        getActivity().finish();
+        dismiss();
     }
 
-    private void sendResult(int resultCode){
-       getActivity().setResult(resultCode);
-    }
 
-    private void addNewNote(){
-        ToDoListItem item = new ToDoListItem();
-        item.setTitle(mTitleEditText.getText().toString());
-        item.setBody(mItemDescEditText.getText().toString());
-        mToDoListDB.addItem(item);
-        sendResult(Activity.RESULT_OK);
-    }
-
-    private void editNote(){
-        ToDoListItem item = mToDoListDB.getItem(mId);
-        if(item != null){
-            item.setTitle(mTitleEditText.getText().toString());
-            item.setBody(mItemDescEditText.getText().toString());
-            mToDoListDB.updateItem(item);
-            sendResult(Activity.RESULT_OK);
-        }
-    }
-
-    private void deleteNote(){
-        if(mId != null){
-            mToDoListDB.deleteItem(mId);
+    private void handleAction(DialogAction action){
+        if(mToDoListItem != null){
+            if(action != DialogAction.DELETE){
+                mToDoListItem.setTitle(mTitleEditText.getText().toString());
+                mToDoListItem.setBody(mItemDescEditText.getText().toString());
+            }
+            mChangeListener.onDialogClose(mToDoListItem,action);
         }
     }
 
     @Override
     public void onClick(View view) {
 
+    }
+
+    public void setChangeListener(OnDialogChangeListener changeListener) {
+        mChangeListener = changeListener;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mChangeListener = null;
     }
 }
