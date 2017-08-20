@@ -7,6 +7,7 @@ import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,7 @@ public class ToDoListRecyclerViewAdapter extends
 
     public interface onItemClickListener{
         void onItemSelected(UUID id, int position);
+        void onItemLongPressed(int position);
     }
 
     public ToDoListRecyclerViewAdapter(Context context, List<ToDoListItem> items){
@@ -77,7 +79,15 @@ public class ToDoListRecyclerViewAdapter extends
         }
     }
 
-    class ToDoListItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public UUID onItemDeleted(int position){
+        UUID tempId = mToDoListItems.get(position).getId();
+        mToDoListItems.remove(position);
+        notifyItemRemoved(position);
+        return tempId;
+    }
+
+    public class ToDoListItemViewHolder extends RecyclerView.ViewHolder implements
+            View.OnClickListener, View.OnLongClickListener {
 
         AppCompatTextView mTextView;
         ToDoListItem mItem;
@@ -86,6 +96,7 @@ public class ToDoListRecyclerViewAdapter extends
             super(binding);
             mTextView = (AppCompatTextView) binding.findViewById(R.id.item_title_tv);
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
         }
 
         void bindItem(ToDoListItem item){
@@ -99,6 +110,14 @@ public class ToDoListRecyclerViewAdapter extends
         public void onClick(View view) {
             if(mItem != null)
                 mOnItemClickListener.onItemSelected(mItem.getId(),getAdapterPosition());
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+            if(mItem != null){
+                mOnItemClickListener.onItemLongPressed(getAdapterPosition());
+            }
+            return false;
         }
     }
 

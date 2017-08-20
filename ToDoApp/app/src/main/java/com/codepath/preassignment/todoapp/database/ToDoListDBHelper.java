@@ -14,7 +14,7 @@ import com.codepath.preassignment.todoapp.database.ToDoListContract.ToDoListEntr
 public class ToDoListDBHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "todolist.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String TAG = ToDoListDBHelper.class.getSimpleName();
 
 
@@ -31,7 +31,10 @@ public class ToDoListDBHelper extends SQLiteOpenHelper {
                 ToDoListTable.COLS.BODY + " TEXT NOT NULL," +
                 ToDoListTable.COLS.ASSIGNED_TO + " TEXT," +
                 ToDoListTable.COLS.DATE_CREATED + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
-                ToDoListTable.COLS.DATE_UPDATED + " TEXT);";
+                ToDoListTable.COLS.DATE_UPDATED + " TEXT, " +
+                ToDoListTable.COLS.DUE_DATE  + " TEXT, " +
+                ToDoListTable.COLS.PRIORITY  + " INTEGER " +
+                ");";
         Log.d(TAG, CREATE_TODO_TABLE);
 
         sqLiteDatabase.execSQL(CREATE_TODO_TABLE);

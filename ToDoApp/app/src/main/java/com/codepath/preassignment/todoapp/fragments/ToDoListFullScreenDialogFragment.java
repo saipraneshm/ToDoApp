@@ -6,14 +6,17 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.codepath.preassignment.todoapp.Priority;
 import com.codepath.preassignment.todoapp.R;
 import com.codepath.preassignment.todoapp.database.ToDoListDB;
 import com.codepath.preassignment.todoapp.database.ToDoListItem;
@@ -39,7 +42,7 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
     public enum DialogAction{
         ADD,
         DELETE,
-        EDIT;
+        EDIT
     }
 
     MenuItem editItem;
@@ -89,6 +92,8 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         mPriorityEditText = (TextInputEditText)view.findViewById(R.id.priority_edit_text);
         mItemDescEditText = (TextInputEditText)view.findViewById(R.id.item_desc_edit_text);
         mItemStatusDesc = (TextInputEditText)view.findViewById(R.id.item_status_edit_text);
+
+        mPriorityEditText.setOnClickListener(this);
 
         mDialogToolbar = (Toolbar) view.findViewById(R.id.dialog_toolbar);
         mDialogToolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -144,6 +149,7 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         if(mToDoListItem != null){
             mTitleEditText.setText(mToDoListItem.getTitle());
             mItemDescEditText.setText(mToDoListItem.getBody());
+            mPriorityEditText.setText(Priority.getString(mToDoListItem.getPriority()));
         }
     }
 
@@ -152,34 +158,32 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         mTitleEditText.append("");
         mTitleEditText.setFocusableInTouchMode(true);
         mTitleEditText.requestFocus();
-        mTitleEditText.setClickable(true);
-        mDueDateEditText.setClickable(true);
-        mDueTimeEditText.setClickable(true);
-        mPriorityEditText.setClickable(true);
-        mItemDescEditText.setClickable(true);
-        mItemStatusDesc.setClickable(true);
 
-        mTitleEditText.setFocusableInTouchMode(true);
+        mTitleEditText.setOnClickListener(this);
+        mDueDateEditText.setOnClickListener(this);
+        mDueTimeEditText.setOnClickListener(this);
+        mPriorityEditText.setOnClickListener(this);
+        mItemDescEditText.setOnClickListener(this);
+        mItemStatusDesc.setOnClickListener(this);
+
         mDueDateEditText.setFocusableInTouchMode(true);
         mDueTimeEditText.setFocusableInTouchMode(true);
-        mPriorityEditText.setFocusableInTouchMode(true);
         mItemDescEditText.setFocusableInTouchMode(true);
         mItemStatusDesc.setFocusableInTouchMode(true);
 
     }
 
     private void disableAllFields(){
-        mTitleEditText.setClickable(false);
-        mDueDateEditText.setClickable(false);
-        mDueTimeEditText.setClickable(false);
-        mPriorityEditText.setClickable(false);
-        mItemDescEditText.setClickable(false);
-        mItemStatusDesc.setClickable(false);
+        mTitleEditText.setOnClickListener(null);
+        mDueDateEditText.setOnClickListener(null);
+        mDueTimeEditText.setOnClickListener(null);
+        mPriorityEditText.setOnClickListener(null);
+        mItemDescEditText.setOnClickListener(null);
+        mItemStatusDesc.setOnClickListener(null);
 
         mTitleEditText.setFocusableInTouchMode(false);
         mDueDateEditText.setFocusableInTouchMode(false);
         mDueTimeEditText.setFocusableInTouchMode(false);
-        mPriorityEditText.setFocusableInTouchMode(false);
         mItemDescEditText.setFocusableInTouchMode(false);
         mItemStatusDesc.setFocusableInTouchMode(false);
     }
@@ -199,14 +203,48 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
             if(action != DialogAction.DELETE){
                 mToDoListItem.setTitle(mTitleEditText.getText().toString());
                 mToDoListItem.setBody(mItemDescEditText.getText().toString());
+                mToDoListItem.setPriority(Priority.getInt(mPriorityEditText.getText().toString()));
             }
             mChangeListener.onDialogClose(mToDoListItem,action);
         }
     }
 
+    private void showPriorityPopUp(){
+        PopupMenu popup = new PopupMenu(getActivity(),mPriorityEditText);
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                String action = null;
+                switch (item.getItemId()){
+                    case R.id.action_high_priority:
+                        action = Priority.getString(Priority.HIGH);
+                        break;
+                    case R.id.action_medium_priority:
+                        action = Priority.getString(Priority.MEDIUM);
+                        break;
+                    case R.id.action_low_priority:
+                        action = Priority.getString(Priority.LOW);
+                        break;
+
+                }
+                if(action != null)
+                    mPriorityEditText.setText(action);
+                return true;
+            }
+        });
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.priority_popup_menu, popup.getMenu());
+        popup.show();
+    }
+
     @Override
     public void onClick(View view) {
 
+        switch(view.getId()){
+            case R.id.priority_edit_text:
+                showPriorityPopUp();
+                break;
+        }
     }
 
     public void setChangeListener(OnDialogChangeListener changeListener) {

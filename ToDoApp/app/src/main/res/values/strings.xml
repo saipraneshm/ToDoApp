@@ -10,4 +10,9 @@
     <string name="save_note">Save</string>
     <string name="delete_existing_item">Delete item</string>
     <string name="save_existing_item">Save Item</string>
+    <string name="delete_dialog_title">Deleting Item</string>
+    <string name="delete_dialog_message">Are you sure you want to delete the item selected?</string>
+    <string name="high_priority">HIGH</string>
+    <string name="medium_priority">MEDIUM</string>
+    <string name="low_priority">LOW</string>
 </resources>

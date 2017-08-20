@@ -21,6 +21,7 @@ public class ToDoListItem implements Parcelable {
     private UUID mId;
     private String mDateCreated;
     private String mDueDate;
+    private int mPriority;
 
 
     //Automatically generates a unique sequence
@@ -90,6 +91,13 @@ public class ToDoListItem implements Parcelable {
         mDueDate = dueDate;
     }
 
+    public int getPriority() {
+        return mPriority;
+    }
+
+    public void setPriority(int priority) {
+        mPriority = priority;
+    }
 
     @Override
     public int describeContents() {
@@ -105,6 +113,7 @@ public class ToDoListItem implements Parcelable {
         dest.writeSerializable(this.mId);
         dest.writeString(this.mDateCreated);
         dest.writeString(this.mDueDate);
+        dest.writeInt(this.mPriority);
     }
 
     protected ToDoListItem(Parcel in) {
@@ -115,9 +124,10 @@ public class ToDoListItem implements Parcelable {
         this.mId = (UUID) in.readSerializable();
         this.mDateCreated = in.readString();
         this.mDueDate = in.readString();
+        this.mPriority = in.readInt();
     }
 
-    public static final Parcelable.Creator<ToDoListItem> CREATOR = new Parcelable.Creator<ToDoListItem>() {
+    public static final Creator<ToDoListItem> CREATOR = new Creator<ToDoListItem>() {
         @Override
         public ToDoListItem createFromParcel(Parcel source) {
             return new ToDoListItem(source);
@@ -128,4 +138,18 @@ public class ToDoListItem implements Parcelable {
             return new ToDoListItem[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return "ToDoListItem{" +
+                "mTitle='" + mTitle + '\'' +
+                ", mBody='" + mBody + '\'' +
+                ", mLastUpdated='" + mLastUpdated + '\'' +
+                ", mAssignedTo='" + mAssignedTo + '\'' +
+                ", mId=" + mId +
+                ", mDateCreated='" + mDateCreated + '\'' +
+                ", mDueDate='" + mDueDate + '\'' +
+                ", mPriority=" + mPriority +
+                '}';
+    }
 }
