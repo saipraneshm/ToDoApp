@@ -15,4 +15,6 @@
     <string name="high_priority">HIGH</string>
     <string name="medium_priority">MEDIUM</string>
     <string name="low_priority">LOW</string>
+    <string name="task_status_done">DONE</string>
+    <string name="task_status_incomplete">NOT DONE</string>
 </resources>

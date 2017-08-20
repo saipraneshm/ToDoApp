@@ -26,6 +26,7 @@ public class ToDoListCursorWrapper extends CursorWrapper {
         String lastUpdated = getString(getColumnIndex(ToDoListTable.COLS.DATE_UPDATED));
         String dueDate = getString(getColumnIndex(ToDoListTable.COLS.DUE_DATE));
         int priority = getInt(getColumnIndex(ToDoListTable.COLS.PRIORITY));
+        boolean taskStatus = getInt(getColumnIndex(ToDoListTable.COLS.TASK_STATUS)) != 0;
 
         ToDoListItem item = new ToDoListItem();
         item.setId(UUID.fromString(uuid));
@@ -36,6 +37,7 @@ public class ToDoListCursorWrapper extends CursorWrapper {
         item.setLastUpdated(lastUpdated);
         item.setDueDate(dueDate);
         item.setPriority(priority);
+        item.setTaskStatus(taskStatus);
 
         return item;
     }

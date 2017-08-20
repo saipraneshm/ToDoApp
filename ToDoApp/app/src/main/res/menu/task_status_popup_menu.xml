@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="@string/task_status_done"
+          android:id="@+id/action_task_status_done"/>
+
+    <item android:id="@+id/action_task_status_not_done"
+            android:title="@string/task_status_incomplete"
+        />
+
+</menu>

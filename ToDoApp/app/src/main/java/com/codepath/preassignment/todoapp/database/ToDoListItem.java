@@ -22,11 +22,13 @@ public class ToDoListItem implements Parcelable {
     private String mDateCreated;
     private String mDueDate;
     private int mPriority;
+    private boolean mTaskStatus;
 
 
     //Automatically generates a unique sequence
     public ToDoListItem(){
         mId = UUID.randomUUID();
+        mTaskStatus = false;
     }
 
     //Constructor to retrieve a todoList item
@@ -99,6 +101,29 @@ public class ToDoListItem implements Parcelable {
         mPriority = priority;
     }
 
+
+    public boolean isTaskDone() {
+        return mTaskStatus;
+    }
+
+    public void setTaskStatus(boolean taskStatus) {
+        mTaskStatus = taskStatus;
+    }
+
+    @Override
+    public String toString() {
+        return "ToDoListItem{" +
+                "mTitle='" + mTitle + '\'' +
+                ", mBody='" + mBody + '\'' +
+                ", mLastUpdated='" + mLastUpdated + '\'' +
+                ", mAssignedTo='" + mAssignedTo + '\'' +
+                ", mId=" + mId +
+                ", mDateCreated='" + mDateCreated + '\'' +
+                ", mDueDate='" + mDueDate + '\'' +
+                ", mPriority=" + mPriority +
+                '}';
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -114,6 +139,7 @@ public class ToDoListItem implements Parcelable {
         dest.writeString(this.mDateCreated);
         dest.writeString(this.mDueDate);
         dest.writeInt(this.mPriority);
+        dest.writeByte(this.mTaskStatus ? (byte) 1 : (byte) 0);
     }
 
     protected ToDoListItem(Parcel in) {
@@ -125,6 +151,7 @@ public class ToDoListItem implements Parcelable {
         this.mDateCreated = in.readString();
         this.mDueDate = in.readString();
         this.mPriority = in.readInt();
+        this.mTaskStatus = in.readByte() != 0;
     }
 
     public static final Creator<ToDoListItem> CREATOR = new Creator<ToDoListItem>() {
@@ -138,18 +165,4 @@ public class ToDoListItem implements Parcelable {
             return new ToDoListItem[size];
         }
     };
-
-    @Override
-    public String toString() {
-        return "ToDoListItem{" +
-                "mTitle='" + mTitle + '\'' +
-                ", mBody='" + mBody + '\'' +
-                ", mLastUpdated='" + mLastUpdated + '\'' +
-                ", mAssignedTo='" + mAssignedTo + '\'' +
-                ", mId=" + mId +
-                ", mDateCreated='" + mDateCreated + '\'' +
-                ", mDueDate='" + mDueDate + '\'' +
-                ", mPriority=" + mPriority +
-                '}';
-    }
 }

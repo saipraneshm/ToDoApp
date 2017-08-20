@@ -164,7 +164,7 @@ public class ToDoListFragment extends Fragment {
             listItem = new ToDoListItem();
         }else{
             listItem = mDB.getItem(mSelectedItem);
-            Log.d(TAG, "Selected Item title: " + listItem.getTitle());
+            Log.d(TAG, "Selected Item title: " + listItem);
         }
         ToDoListFullScreenDialogFragment dialogFragment = ToDoListFullScreenDialogFragment
                 .newInstance(listItem, isNewItem);

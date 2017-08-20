@@ -1,14 +1,11 @@
 package com.codepath.preassignment.todoapp.fragments;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -94,6 +91,7 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         mItemStatusDesc = (TextInputEditText)view.findViewById(R.id.item_status_edit_text);
 
         mPriorityEditText.setOnClickListener(this);
+        mItemStatusDesc.setOnClickListener(this);
 
         mDialogToolbar = (Toolbar) view.findViewById(R.id.dialog_toolbar);
         mDialogToolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -150,6 +148,9 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
             mTitleEditText.setText(mToDoListItem.getTitle());
             mItemDescEditText.setText(mToDoListItem.getBody());
             mPriorityEditText.setText(Priority.getString(mToDoListItem.getPriority()));
+            mItemStatusDesc.setText(mToDoListItem.isTaskDone()?
+                    getString(R.string.task_status_done) :
+                    getString(R.string.task_status_incomplete));
         }
     }
 
@@ -169,7 +170,6 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         mDueDateEditText.setFocusableInTouchMode(true);
         mDueTimeEditText.setFocusableInTouchMode(true);
         mItemDescEditText.setFocusableInTouchMode(true);
-        mItemStatusDesc.setFocusableInTouchMode(true);
 
     }
 
@@ -185,7 +185,6 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         mDueDateEditText.setFocusableInTouchMode(false);
         mDueTimeEditText.setFocusableInTouchMode(false);
         mItemDescEditText.setFocusableInTouchMode(false);
-        mItemStatusDesc.setFocusableInTouchMode(false);
     }
 
     private void saveAllFields(){
@@ -201,9 +200,10 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
     private void handleAction(DialogAction action){
         if(mToDoListItem != null){
             if(action != DialogAction.DELETE){
-                mToDoListItem.setTitle(mTitleEditText.getText().toString());
+                mToDoListItem.setTitle(mTitleEditText.getText().toString().trim());
                 mToDoListItem.setBody(mItemDescEditText.getText().toString());
                 mToDoListItem.setPriority(Priority.getInt(mPriorityEditText.getText().toString()));
+                mToDoListItem.setTaskStatus(getTaskBoolVal(mItemStatusDesc.getText().toString()));
             }
             mChangeListener.onDialogClose(mToDoListItem,action);
         }
@@ -237,12 +237,45 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         popup.show();
     }
 
+
+    private void showTaskStatusPopUp(){
+        PopupMenu popup = new PopupMenu(getActivity(),mItemStatusDesc);
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                String action = null;
+                switch (item.getItemId()){
+                    case R.id.action_task_status_done:
+                        action = getString(R.string.task_status_done);
+                        break;
+                    case R.id.action_task_status_not_done:
+                        action = getString(R.string.task_status_incomplete);
+                        break;
+
+                }
+                if(action != null)
+                    mItemStatusDesc.setText(action);
+                return true;
+            }
+        });
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.task_status_popup_menu, popup.getMenu());
+        popup.show();
+    }
+
+    private boolean getTaskBoolVal(String str){
+        return str.equals(getString(R.string.task_status_done));
+    }
+
     @Override
     public void onClick(View view) {
 
         switch(view.getId()){
             case R.id.priority_edit_text:
                 showPriorityPopUp();
+                break;
+            case R.id.item_status_edit_text:
+                showTaskStatusPopUp();
                 break;
         }
     }
@@ -256,4 +289,8 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         super.onDetach();
         mChangeListener = null;
     }
+
+
+
 }
+
