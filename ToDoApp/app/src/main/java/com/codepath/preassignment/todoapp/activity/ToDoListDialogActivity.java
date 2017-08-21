@@ -1,14 +1,10 @@
 package com.codepath.preassignment.todoapp.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 import com.codepath.preassignment.todoapp.activity.abs.SingleFragmentActivity;
-import com.codepath.preassignment.todoapp.fragments.ToDoListDialogFragment;
-import com.codepath.preassignment.todoapp.fragments.ToDoListFullScreenDialogFragment;
 
 import java.util.UUID;
 

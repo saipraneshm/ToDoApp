@@ -86,6 +86,23 @@ public class ToDoListRecyclerViewAdapter extends
         return tempId;
     }
 
+    public void deleteItem(UUID mId){
+        int pos = getItemPosition(mId);
+        if(pos >= 0){
+            mToDoListItems.remove(pos);
+            notifyItemRemoved(pos);
+        }
+    }
+
+    private int getItemPosition(UUID mId){
+        for(int i = 0 ; i < mToDoListItems.size(); i++){
+            if(mId.equals(mToDoListItems.get(i).getId())){
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public class ToDoListItemViewHolder extends RecyclerView.ViewHolder implements
             View.OnClickListener, View.OnLongClickListener {
 

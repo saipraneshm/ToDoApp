@@ -17,4 +17,5 @@
     <string name="low_priority">LOW</string>
     <string name="task_status_done">DONE</string>
     <string name="task_status_incomplete">NOT DONE</string>
+    <string name="date_picker_title">Due Date</string>
 </resources>

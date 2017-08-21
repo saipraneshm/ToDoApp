@@ -5,6 +5,7 @@ import android.database.CursorWrapper;
 
 import com.codepath.preassignment.todoapp.database.ToDoListContract.ToDoListEntry.ToDoListTable;
 
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -24,7 +25,7 @@ public class ToDoListCursorWrapper extends CursorWrapper {
         String assignedTo = getString(getColumnIndex(ToDoListTable.COLS.ASSIGNED_TO));
         String dateCreated = getString(getColumnIndex(ToDoListTable.COLS.DATE_CREATED));
         String lastUpdated = getString(getColumnIndex(ToDoListTable.COLS.DATE_UPDATED));
-        String dueDate = getString(getColumnIndex(ToDoListTable.COLS.DUE_DATE));
+        long dueDate = getLong(getColumnIndex(ToDoListTable.COLS.DUE_DATE));
         int priority = getInt(getColumnIndex(ToDoListTable.COLS.PRIORITY));
         boolean taskStatus = getInt(getColumnIndex(ToDoListTable.COLS.TASK_STATUS)) != 0;
 
@@ -35,7 +36,7 @@ public class ToDoListCursorWrapper extends CursorWrapper {
         item.setAssignedTo(assignedTo);
         item.setDateCreated(dateCreated);
         item.setLastUpdated(lastUpdated);
-        item.setDueDate(dueDate);
+        item.setDueDate(new Date(dueDate));
         item.setPriority(priority);
         item.setTaskStatus(taskStatus);
 

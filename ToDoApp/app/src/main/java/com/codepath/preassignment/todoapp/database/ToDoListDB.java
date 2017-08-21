@@ -44,7 +44,7 @@ public class ToDoListDB {
         contentValues.put(ToDoListTable.COLS.ASSIGNED_TO, item.getAssignedTo());
         contentValues.put(ToDoListTable.COLS.DATE_CREATED, item.getDateCreated());
         contentValues.put(ToDoListTable.COLS.DATE_UPDATED, item.getLastUpdated());
-        contentValues.put(ToDoListTable.COLS.DUE_DATE, item.getDueDate());
+        contentValues.put(ToDoListTable.COLS.DUE_DATE, item.getDueDate().getTime());
         contentValues.put(ToDoListTable.COLS.PRIORITY, item.getPriority());
         contentValues.put(ToDoListTable.COLS.TASK_STATUS, item.isTaskDone() ? 1 : 0);
 

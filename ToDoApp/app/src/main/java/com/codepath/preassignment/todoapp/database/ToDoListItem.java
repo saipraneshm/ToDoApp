@@ -20,7 +20,7 @@ public class ToDoListItem implements Parcelable {
     private String mAssignedTo;
     private UUID mId;
     private String mDateCreated;
-    private String mDueDate;
+    private Date mDueDate;
     private int mPriority;
     private boolean mTaskStatus;
 
@@ -29,6 +29,7 @@ public class ToDoListItem implements Parcelable {
     public ToDoListItem(){
         mId = UUID.randomUUID();
         mTaskStatus = false;
+        mDueDate = new Date();
     }
 
     //Constructor to retrieve a todoList item
@@ -85,13 +86,7 @@ public class ToDoListItem implements Parcelable {
         mDateCreated = dateCreated;
     }
 
-    public String getDueDate() {
-        return mDueDate;
-    }
 
-    public void setDueDate(String dueDate) {
-        mDueDate = dueDate;
-    }
 
     public int getPriority() {
         return mPriority;
@@ -109,6 +104,15 @@ public class ToDoListItem implements Parcelable {
     public void setTaskStatus(boolean taskStatus) {
         mTaskStatus = taskStatus;
     }
+
+    public Date getDueDate() {
+        return mDueDate;
+    }
+
+    public void setDueDate(Date dueDate) {
+        mDueDate = dueDate;
+    }
+
 
     @Override
     public String toString() {
@@ -137,7 +141,7 @@ public class ToDoListItem implements Parcelable {
         dest.writeString(this.mAssignedTo);
         dest.writeSerializable(this.mId);
         dest.writeString(this.mDateCreated);
-        dest.writeString(this.mDueDate);
+        dest.writeLong(this.mDueDate != null ? this.mDueDate.getTime() : -1);
         dest.writeInt(this.mPriority);
         dest.writeByte(this.mTaskStatus ? (byte) 1 : (byte) 0);
     }
@@ -149,7 +153,8 @@ public class ToDoListItem implements Parcelable {
         this.mAssignedTo = in.readString();
         this.mId = (UUID) in.readSerializable();
         this.mDateCreated = in.readString();
-        this.mDueDate = in.readString();
+        long tmpMDueDate = in.readLong();
+        this.mDueDate = tmpMDueDate == -1 ? null : new Date(tmpMDueDate);
         this.mPriority = in.readInt();
         this.mTaskStatus = in.readByte() != 0;
     }

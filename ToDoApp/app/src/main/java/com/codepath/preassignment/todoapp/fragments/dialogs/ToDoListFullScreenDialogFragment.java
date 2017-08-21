@@ -1,9 +1,12 @@
-package com.codepath.preassignment.todoapp.fragments;
+package com.codepath.preassignment.todoapp.fragments.dialogs;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -18,6 +21,9 @@ import com.codepath.preassignment.todoapp.R;
 import com.codepath.preassignment.todoapp.database.ToDoListDB;
 import com.codepath.preassignment.todoapp.database.ToDoListItem;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -29,6 +35,8 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
 
     private static final String TAG = ToDoListFullScreenDialogFragment.class.getSimpleName();
     private static final String ARGS_IS_NEW_NOTE = "ISNEWNOTE";
+    private static final int REQUEST_DATE = 0;
+    private static final String DIALOG_DATE = "DialogDate";
     private Toolbar mDialogToolbar;
     private TextInputEditText mTitleEditText, mDueDateEditText, mDueTimeEditText, mPriorityEditText,
     mItemDescEditText, mItemStatusDesc;
@@ -92,6 +100,8 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
 
         mPriorityEditText.setOnClickListener(this);
         mItemStatusDesc.setOnClickListener(this);
+        mDueDateEditText.setOnClickListener(this);
+        mDueTimeEditText.setOnClickListener(this);
 
         mDialogToolbar = (Toolbar) view.findViewById(R.id.dialog_toolbar);
         mDialogToolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -133,6 +143,8 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
             mDialogToolbar.setTitle(R.string.add_new_item);
             editItem.setVisible(false);
             saveItem.setVisible(true);
+            enableAllFields();
+            updateUI();
         }else{
             disableAllFields();
             saveItem.setVisible(false);
@@ -151,6 +163,7 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
             mItemStatusDesc.setText(mToDoListItem.isTaskDone()?
                     getString(R.string.task_status_done) :
                     getString(R.string.task_status_incomplete));
+            updateDate(mToDoListItem.getDueDate());
         }
     }
 
@@ -167,8 +180,6 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         mItemDescEditText.setOnClickListener(this);
         mItemStatusDesc.setOnClickListener(this);
 
-        mDueDateEditText.setFocusableInTouchMode(true);
-        mDueTimeEditText.setFocusableInTouchMode(true);
         mItemDescEditText.setFocusableInTouchMode(true);
 
     }
@@ -182,8 +193,6 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         mItemStatusDesc.setOnClickListener(null);
 
         mTitleEditText.setFocusableInTouchMode(false);
-        mDueDateEditText.setFocusableInTouchMode(false);
-        mDueTimeEditText.setFocusableInTouchMode(false);
         mItemDescEditText.setFocusableInTouchMode(false);
     }
 
@@ -263,6 +272,15 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         popup.show();
     }
 
+
+    private void showDateDialogPicker(){
+        FragmentManager fm = getFragmentManager();
+        DatePickerDialogFragment dialogFragment = DatePickerDialogFragment
+                .newInstance(mToDoListItem.getDueDate());
+        dialogFragment.setTargetFragment(this, REQUEST_DATE);
+        dialogFragment.show(fm, DIALOG_DATE);
+    }
+
     private boolean getTaskBoolVal(String str){
         return str.equals(getString(R.string.task_status_done));
     }
@@ -277,7 +295,28 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
             case R.id.item_status_edit_text:
                 showTaskStatusPopUp();
                 break;
+            case R.id.due_date_edit_text:
+                showDateDialogPicker();
+                break;
+            case R.id.time_edit_text:
+                break;
         }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode != Activity.RESULT_OK) return;
+        if(requestCode == REQUEST_DATE){
+            Date date = (Date) data.getSerializableExtra(DatePickerDialogFragment.EXTRA_DATE);
+            updateDate(date);
+        }
+    }
+
+    private void updateDate(Date date) {
+        DateFormat dateFormat = SimpleDateFormat.getDateInstance();
+        String strDate = dateFormat.format(date);
+        mDueDateEditText.setText(strDate);
+        mToDoListItem.setDueDate(date);
     }
 
     public void setChangeListener(OnDialogChangeListener changeListener) {

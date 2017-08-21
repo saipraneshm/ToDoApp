@@ -26,7 +26,8 @@ import com.codepath.preassignment.todoapp.R;
 import com.codepath.preassignment.todoapp.adapter.ToDoListRecyclerViewAdapter;
 import com.codepath.preassignment.todoapp.database.ToDoListDB;
 import com.codepath.preassignment.todoapp.database.ToDoListItem;
-import com.codepath.preassignment.todoapp.fragments.ToDoListFullScreenDialogFragment.DialogAction;
+import com.codepath.preassignment.todoapp.fragments.dialogs.ToDoListFullScreenDialogFragment;
+import com.codepath.preassignment.todoapp.fragments.dialogs.ToDoListFullScreenDialogFragment.DialogAction;
 
 import java.util.UUID;
 
@@ -51,6 +52,7 @@ public class ToDoListFragment extends Fragment {
     private static final String TAG = ToDoListFragment.class.getSimpleName();
     private UUID mSelectedItem ;
     private Paint p = new Paint();
+    boolean itemDeleted = false;
 
     public static ToDoListFragment newInstance(){
         return new ToDoListFragment();
@@ -183,6 +185,7 @@ public class ToDoListFragment extends Fragment {
                         break;
                     case DELETE:
                         Log.d(TAG, "calling deleteItem");
+                        mAdapter.deleteItem(modifiedItem.getId());
                         mDB.deleteItem(modifiedItem.getId());
                         break;
                 }
@@ -193,22 +196,38 @@ public class ToDoListFragment extends Fragment {
     }
 
     public void showDeleteAlertDialog(final int position){
+
         AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.delete_dialog_title)
                 .setMessage(R.string.delete_dialog_message)
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        itemDeleted = true;
                         mDB.deleteItem(mAdapter.onItemDeleted(position));
                     }
-                }).setNegativeButton(android.R.string.no, null).create();
+                }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        itemDeleted= false;
+                    }
+                }).create();
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                if(!itemDeleted){
+                    Log.d(TAG, "calling notify item changed");
+                    mAdapter.notifyItemChanged(position);
+                }
+            }
+        });
         dialog.show();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mAdapter.notifyDataSetChanged();
+       /* mAdapter.notifyDataSetChanged();*/
     }
 
 }
