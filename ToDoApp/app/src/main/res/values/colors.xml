@@ -3,4 +3,11 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="colorLowPriority">#4A7BA7</color>
+    <color name="colorMediumPriority">#F5A623</color>
+    <color name="colorHighPriority">#E13A20</color>
+    <color name="textColorToDoItemDetails">#607d8b</color>
+    <color name="textColorToDoItemTitle">#2B3D4D</color>
+    <color name="colorWhite">#ffffff</color>
+    <color name="colorDivider">#757575</color>
 </resources>

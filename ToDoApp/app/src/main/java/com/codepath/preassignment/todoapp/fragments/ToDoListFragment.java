@@ -1,6 +1,8 @@
 package com.codepath.preassignment.todoapp.fragments;
 
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -13,6 +15,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -21,6 +24,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import com.codepath.preassignment.todoapp.R;
 import com.codepath.preassignment.todoapp.adapter.ToDoListRecyclerViewAdapter;
@@ -45,7 +49,10 @@ public class ToDoListFragment extends Fragment {
     private static final int CREATE_NEW_ITEM = 0;
     private static final int EDIT_ITEM = 1;
     private static final String OPEN_TODO_FULLSCREEN_DIALOG = "openFullScreenDialog";
+    private static final int REQUEST_TO_OPEN_DIALOG = 54;
     private RecyclerView mRecyclerView;
+    private LinearLayout mLinearLayout;
+    private AppCompatButton mAddItemButton;
     private FloatingActionButton mFAB;
     private ToDoListRecyclerViewAdapter mAdapter;
     private ToDoListDB mDB;
@@ -65,6 +72,8 @@ public class ToDoListFragment extends Fragment {
         mDB =  ToDoListDB.get(getActivity());
     }
 
+
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -74,8 +83,19 @@ public class ToDoListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_to_do_list, container, false);
         ((AppCompatActivity)getActivity()).setSupportActionBar((Toolbar) view.findViewById(R.id.toolbar));
         mRecyclerView = (RecyclerView) view.findViewById(R.id.todo_list_rv);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mLinearLayout = (LinearLayout) view.findViewById(R.id.display_add_item_ll);
+        mAddItemButton = (AppCompatButton) view.findViewById(R.id.add_item_button);
 
+        mAddItemButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openDialog(true);
+            }
+        });
+
+       updateUI();
+
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new ToDoListRecyclerViewAdapter(getActivity(), mDB.getAllItems());
         mAdapter.setOnItemClickListener(new ToDoListRecyclerViewAdapter.onItemClickListener() {
             @Override
@@ -170,29 +190,38 @@ public class ToDoListFragment extends Fragment {
         }
         ToDoListFullScreenDialogFragment dialogFragment = ToDoListFullScreenDialogFragment
                 .newInstance(listItem, isNewItem);
-        dialogFragment.setChangeListener(new ToDoListFullScreenDialogFragment.OnDialogChangeListener() {
-            @Override
-            public void onDialogClose(ToDoListItem modifiedItem,
-                                      DialogAction action) {
-                switch(action){
-                    case ADD:
-                        Log.d(TAG, "calling addItem");
-                        mDB.addItem(modifiedItem);
-                        break;
-                    case EDIT:
-                        Log.d(TAG, "calling editItem");
-                        mDB.updateItem(modifiedItem);
-                        break;
-                    case DELETE:
-                        Log.d(TAG, "calling deleteItem");
-                        mAdapter.deleteItem(modifiedItem.getId());
-                        mDB.deleteItem(modifiedItem.getId());
-                        break;
-                }
-                mAdapter.updateItems(mDB.getAllItems());
-            }
-        });
+        dialogFragment.setTargetFragment(this, REQUEST_TO_OPEN_DIALOG);
         dialogFragment.show(getFragmentManager(), OPEN_TODO_FULLSCREEN_DIALOG);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode != Activity.RESULT_OK) return;
+
+        if(requestCode ==  REQUEST_TO_OPEN_DIALOG){
+            DialogAction action = (DialogAction) data
+                    .getSerializableExtra(ToDoListFullScreenDialogFragment.EXTRA_ACTION);
+            ToDoListItem modifiedItem = data
+                    .getParcelableExtra(ToDoListFullScreenDialogFragment.EXTRA_ITEM);
+            switch(action){
+                case ADD:
+                    Log.d(TAG, "calling addItem");
+                    mDB.addItem(modifiedItem);
+                    break;
+                case EDIT:
+                    Log.d(TAG, "calling editItem");
+                    mDB.updateItem(modifiedItem);
+                    break;
+                case DELETE:
+                    Log.d(TAG, "calling deleteItem");
+                    mAdapter.deleteItem(modifiedItem.getId());
+                    mDB.deleteItem(modifiedItem.getId());
+                    break;
+            }
+            mAdapter.updateItems(mDB.getAllItems());
+            updateUI();
+        }
+
     }
 
     public void showDeleteAlertDialog(final int position){
@@ -205,6 +234,7 @@ public class ToDoListFragment extends Fragment {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         itemDeleted = true;
                         mDB.deleteItem(mAdapter.onItemDeleted(position));
+                        updateUI();
                     }
                 }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
                     @Override
@@ -224,9 +254,22 @@ public class ToDoListFragment extends Fragment {
         dialog.show();
     }
 
+    private void updateUI(){
+        int itemCount = mDB.getAllItems().size();
+        if(itemCount > 0){
+            mLinearLayout.setVisibility(View.GONE);
+            mRecyclerView.setVisibility(View.VISIBLE);
+        }
+        if(itemCount == 0){
+            mRecyclerView.setVisibility(View.GONE);
+            mLinearLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
+        updateUI();
        /* mAdapter.notifyDataSetChanged();*/
     }
 

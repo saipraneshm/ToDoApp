@@ -1,25 +1,26 @@
 package com.codepath.preassignment.todoapp.adapter;
 
 import android.content.Context;
-import android.databinding.DataBindingUtil;
-import android.support.annotation.NonNull;
+import android.graphics.drawable.GradientDrawable;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.codepath.preassignment.todoapp.R;
-import com.codepath.preassignment.todoapp.database.ToDoListDB;
 import com.codepath.preassignment.todoapp.database.ToDoListItem;
+import com.codepath.preassignment.todoapp.helper.Priority;
 
 
-import java.util.Collections;
-import java.util.Comparator;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -106,15 +107,19 @@ public class ToDoListRecyclerViewAdapter extends
         return -1;
     }
 
+
     public class ToDoListItemViewHolder extends RecyclerView.ViewHolder implements
             View.OnClickListener, View.OnLongClickListener {
 
-        AppCompatTextView mTextView;
+        AppCompatTextView mTitleTv, mPriorityTv, mDueDateTv, mDueTimeTv;
         ToDoListItem mItem;
 
-        public ToDoListItemViewHolder(View binding) {
-            super(binding);
-            mTextView = (AppCompatTextView) binding.findViewById(R.id.item_title_tv);
+        public ToDoListItemViewHolder(View view) {
+            super(view);
+            mTitleTv = (AppCompatTextView) view.findViewById(R.id.item_title_tv);
+            mPriorityTv = (AppCompatTextView) view.findViewById(R.id.priority_tv);
+            mDueDateTv = (AppCompatTextView) view.findViewById(R.id.date_tv);
+            mDueTimeTv = (AppCompatTextView) view.findViewById(R.id.time_tv);
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
         }
@@ -122,8 +127,45 @@ public class ToDoListRecyclerViewAdapter extends
         void bindItem(ToDoListItem item){
             if(item != null){
                 mItem = item;
-                mTextView.setText(item.getTitle());
+                mTitleTv.setText(item.getTitle());
+                setPriorityTv(item.getPriority());
+                updateDate(item.getDueDate());
             }
+        }
+
+        private void updateTime(Date date) {
+            DateFormat dateFormat = SimpleDateFormat.getTimeInstance(DateFormat.SHORT, Locale.US);
+            String strDate = dateFormat.format(date);
+            mDueDateTv.setText(strDate);
+        }
+
+        private void updateDate(Date date) {
+            DateFormat dateFormat = SimpleDateFormat.getDateInstance(DateFormat.MEDIUM, Locale.US);
+            String strDate = dateFormat.format(date);
+            mDueTimeTv.setText(strDate);
+            updateTime(date);
+        }
+
+        private void setPriorityTv(int priority){
+            int magnitudeColor;
+            String priorityChar;
+            switch (priority){
+                case Priority.HIGH: magnitudeColor = R.color.colorHighPriority;
+                    priorityChar = "H";
+                    break;
+                case Priority.LOW: magnitudeColor = R.color.colorLowPriority;
+                    priorityChar = "L";
+                    break;
+                case Priority.MEDIUM: magnitudeColor = R.color.colorMediumPriority;
+                    priorityChar = "M";
+                    break;
+                default:
+                    magnitudeColor = R.color.colorLowPriority;
+                    priorityChar = "L";
+            }
+            GradientDrawable priorityCircle = (GradientDrawable)mPriorityTv.getBackground();
+            priorityCircle.setColor(ContextCompat.getColor(mContext, magnitudeColor));
+            mPriorityTv.setText(priorityChar);
         }
 
         @Override

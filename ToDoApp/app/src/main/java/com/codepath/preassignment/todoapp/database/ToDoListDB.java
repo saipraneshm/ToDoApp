@@ -70,7 +70,7 @@ public class ToDoListDB {
                 whereArgs,
                 null,
                 null,
-                ToDoListTable.COLS.DATE_CREATED);
+                ToDoListTable.COLS.PRIORITY);
         return new ToDoListCursorWrapper(cursor);
     }
 

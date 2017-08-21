@@ -18,4 +18,9 @@
     <string name="task_status_done">DONE</string>
     <string name="task_status_incomplete">NOT DONE</string>
     <string name="date_picker_title">Due Date</string>
+    <string name="no_items">No Items to display. Start adding items</string>
+    <string name="add_item_button">Add Item</string>
+    <string name="please_enter_the_title">Please enter the title</string>
+    <string name="save_dialog_title">Save Item</string>
+    <string name="save_dialog_message">Do you want to save the changes?</string>
 </resources>

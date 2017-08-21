@@ -1,14 +1,19 @@
 package com.codepath.preassignment.todoapp.fragments.dialogs;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,6 +45,8 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
     private static final String DIALOG_DATE = "DialogDate";
     private static final int REQUEST_TIME = 1;
     private static final String DIALOG_TIME = "DialogTime";
+    public static final String EXTRA_ACTION = "ExtraAction";
+    public static final String EXTRA_ITEM = "ExtraItem";
     private Toolbar mDialogToolbar;
     private TextInputEditText mTitleEditText, mDueDateEditText, mDueTimeEditText, mPriorityEditText,
     mItemDescEditText, mItemStatusDesc;
@@ -77,6 +84,13 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         return dialogFragment;
     }
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if(getDialog().getWindow() != null)
+            getDialog().getWindow()
+                    .getAttributes().windowAnimations = R.style.DialogAnimation;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -110,7 +124,28 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         mDialogToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dismiss();
+                if(valuesChanged){
+                    AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                            .setTitle(R.string.save_dialog_title)
+                            .setMessage(R.string.save_dialog_message)
+                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    if(valuesChanged) handleAction(DialogAction.EDIT);
+                                    dismiss();
+                                }
+                            })
+                            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                            }).create();
+                    dialog.show();
+                }else{
+                    dismiss();
+                }
+
             }
         });
 
@@ -124,6 +159,7 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
                 switch (itemId){
                     case R.id.action_edit_item:
                         enableAllFields();
+                        valuesChanged = true;
                         editItem.setVisible(false);
                         saveItem.setVisible(true);
                         break;
@@ -132,6 +168,7 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
                         dismiss();
                         break;
                     case R.id.action_save_item:
+                        valuesChanged = false;
                         saveAllFields();
                         break;
                 }
@@ -166,10 +203,8 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
             mItemStatusDesc.setText(mToDoListItem.isTaskDone()?
                     getString(R.string.task_status_done) :
                     getString(R.string.task_status_incomplete));
-            if(!isNewNote){
-                updateDate(mToDoListItem.getDueDate());
-                updateTime(mToDoListItem.getDueDate());
-            }
+            updateDate(mToDoListItem.getDueDate());
+            updateTime(mToDoListItem.getDueDate());
         }
     }
 
@@ -203,6 +238,10 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
     }
 
     private void saveAllFields(){
+        if(mTitleEditText.getText() != null && TextUtils.isEmpty(mTitleEditText.getText())){
+            mTitleEditText.setError(getActivity().getString(R.string.please_enter_the_title));
+            return;
+        }
         if(isNewNote){
             handleAction(DialogAction.ADD);
         }else{
@@ -220,7 +259,8 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
                 mToDoListItem.setPriority(Priority.getInt(mPriorityEditText.getText().toString()));
                 mToDoListItem.setTaskStatus(getTaskBoolVal(mItemStatusDesc.getText().toString()));
             }
-            mChangeListener.onDialogClose(mToDoListItem,action);
+            //mChangeListener.onDialogClose(mToDoListItem,action);
+            sendResult(Activity.RESULT_OK, action, mToDoListItem);
         }
     }
 
@@ -348,11 +388,24 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         mChangeListener = changeListener;
     }
 
+
+    private void sendResult(int resultCode, DialogAction action, ToDoListItem listItem){
+        if(getTargetFragment() == null) return;
+
+        Intent intent = new Intent();
+        intent.putExtra(EXTRA_ACTION, action);
+        intent.putExtra(EXTRA_ITEM, listItem);
+
+        getTargetFragment().onActivityResult(getTargetRequestCode(), resultCode, intent);
+    }
+
     @Override
     public void onDetach() {
         super.onDetach();
-        mChangeListener = null;
+       // mChangeListener = null;
     }
+
+
 
 
 
