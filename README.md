@@ -1,6 +1,6 @@
-# Pre-work - *ToDoApp*
+# Pre-work - *Taskly*
 
-**ToDoApp** is an android app that allows building a todo list and basic todo items management functionality including adding new items, editing and deleting an existing item.
+**Taskly** is an android app that allows building a todo list and basic todo items management functionality including adding new items, editing and deleting an existing item.
 
 Submitted by: **Sai Pranesh Mukkala**
 
@@ -36,7 +36,7 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/link/to/your/gif/file.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='http://i.imgur.com/k9h3t8a.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
@@ -46,19 +46,21 @@ As part of your pre-work submission, please reflect on the app and answer the fo
 
 **Question 1:** "What are your reactions to the Android app development platform so far? Compare and contrast Android's approach to layouts and user interfaces in past platforms you've used."
 
-**Answer:** [Enter your answer here in a paragraph or two].
+**Answer:** I find it really amazing, it is such a powerful platform that can reach out to a huge consumer base. The way the android works using all the code and resource files is similar to what is used in Web development. CSS styles are seperated from the code, and we write controller code in a different file and modify the UI from the controller itself, it is the same way with Android. Although android provides more fine grain control over the UI, but it still has its limitations, the developer needs to be very careful with the memory and null pointer exceptions which could crash the app abruptly. I felt that Android is more user interface involved.
 
 **Question 2:** "Take a moment to reflect on the `ArrayAdapter` used in your pre-work. How would you describe an adapter in this context and what is its function in Android? Why do you think the adapter is important? Explain the purpose of the `convertView` in the `getView` method of the `ArrayAdapter`."
 
-**Answer:** [Enter your answer here in a paragraph or two].
+**Answer:** Adapter acts as a helper class that a ListView uses to put the items on the screen and in appropriate positions. the listview first asks for how many items are there to display and then puts them on the screen based on individual item position in the list of items. Adapter is very important which helps us to customize to draw the items on the screen. 'convertView' is like a viewHolder which helps to recycle the views after enough views have been populated to fill the screen. It improves performance and reduces the overhead of calling findViewById which is a costly operation.
 
 ## Notes
 
 Describe any challenges encountered while building the app.
 
+The only challenge was to add the swipe to remove feature while developing the app and also to make sure that the app is easily expandable.
+
 ## License
 
-    Copyright [yyyy] [name of copyright owner]
+    Copyright [2017] [Sai Pranesh Mukkala]
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
