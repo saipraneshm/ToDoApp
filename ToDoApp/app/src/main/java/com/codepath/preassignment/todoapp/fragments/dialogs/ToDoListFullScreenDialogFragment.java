@@ -1,6 +1,7 @@
 package com.codepath.preassignment.todoapp.fragments.dialogs;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,13 +12,17 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 
 import com.codepath.preassignment.todoapp.helper.Priority;
 import com.codepath.preassignment.todoapp.R;
@@ -106,30 +111,39 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         mDueDateEditText.setOnClickListener(this);
         mDueTimeEditText.setOnClickListener(this);
 
+        mTitleEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                valuesChanged = true;
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
         Toolbar dialogToolbar = (Toolbar) view.findViewById(R.id.dialog_toolbar);
         dialogToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(valuesChanged){
-                    AlertDialog dialog = new AlertDialog.Builder(getActivity())
-                            .setTitle(R.string.save_dialog_title)
-                            .setMessage(R.string.save_dialog_message)
-                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    if(valuesChanged) handleAction(DialogAction.EDIT);
-                                    dismiss();
-                                }
-                            })
-                            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-
-                                }
-                            }).create();
-                    dialog.show();
+                    showSaveChangesDialog();
                 }else{
-                    dismiss();
+                    if(isNewNote){
+                        if(mTitleEditText.getText() != null && TextUtils.isEmpty(mTitleEditText.getText())){
+                            mTitleEditText.setError(getActivity().getString(R.string.please_enter_the_title));
+                            return;
+                        }
+                        showSaveChangesDialog();
+                    }else{
+                        dismiss();
+                    }
                 }
 
             }
@@ -150,8 +164,11 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
                         saveItem.setVisible(true);
                         break;
                     case R.id.action_delete_item:
-                        handleAction(DialogAction.DELETE);
-                        dismiss();
+                        if(isNewNote) dismiss();
+                        else{
+                            handleAction(DialogAction.DELETE);
+                            dismiss();
+                        }
                         break;
                     case R.id.action_save_item:
                         valuesChanged = false;
@@ -179,6 +196,31 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
             updateUI();
         }
         return view;
+    }
+
+    private void showSaveChangesDialog() {
+        AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.save_dialog_title)
+                .setMessage(R.string.save_dialog_message)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if(valuesChanged){
+                            if(isNewNote)
+                                handleAction(DialogAction.ADD);
+                            else
+                                handleAction(DialogAction.EDIT);
+                        }
+                        dismiss();
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                }).create();
+        dialog.show();
     }
 
     private void updateUI() {

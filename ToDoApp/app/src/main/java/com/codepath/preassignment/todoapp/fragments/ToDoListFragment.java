@@ -81,7 +81,8 @@ public class ToDoListFragment extends Fragment {
 
 
         View view = inflater.inflate(R.layout.fragment_to_do_list, container, false);
-        ((AppCompatActivity)getActivity()).setSupportActionBar((Toolbar) view.findViewById(R.id.toolbar));
+        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.todo_list_rv);
         mLinearLayout = (LinearLayout) view.findViewById(R.id.display_add_item_ll);
         mAddItemButton = (AppCompatButton) view.findViewById(R.id.add_item_button);
@@ -94,7 +95,7 @@ public class ToDoListFragment extends Fragment {
             }
         });
 
-       updateUI();
+        updateUI();
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new ToDoListRecyclerViewAdapter(getActivity(), mDB.getAllItems());

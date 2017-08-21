@@ -43,7 +43,7 @@
                     android:id="@+id/title_edit_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Title"
+                    android:hint="@string/title"
                     android:textAppearance="@style/TextAppearance.AppCompat.Display1"/>
             </android.support.design.widget.TextInputLayout>
 
@@ -76,7 +76,7 @@
                         android:focusable="false"
                         android:drawableRight="@drawable/ic_arrow_drop_down_black_24dp"
                         android:drawableEnd="@drawable/ic_arrow_drop_down_black_24dp"
-                        android:hint="Due Date"/>
+                        android:hint="@string/due_date"/>
                 </android.support.design.widget.TextInputLayout>
 
                 <android.support.design.widget.TextInputLayout
@@ -92,7 +92,7 @@
                         android:focusable="false"
                         android:drawableRight="@drawable/ic_arrow_drop_down_black_24dp"
                         android:drawableEnd="@drawable/ic_arrow_drop_down_black_24dp"
-                        android:hint="Due time"/>
+                        android:hint="@string/due_time"/>
                 </android.support.design.widget.TextInputLayout>
             </LinearLayout>
 
@@ -116,7 +116,7 @@
                     android:focusable="false"
                     android:drawableRight="@drawable/ic_arrow_drop_down_black_24dp"
                     android:drawableEnd="@drawable/ic_arrow_drop_down_black_24dp"
-                    android:hint="Priority"/>
+                    android:hint="@string/priority"/>
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -161,7 +161,7 @@
                     android:focusable="false"
                     android:drawableRight="@drawable/ic_arrow_drop_down_black_24dp"
                     android:drawableEnd="@drawable/ic_arrow_drop_down_black_24dp"
-                    android:hint="Item Status"/>
+                    android:hint="@string/item_status"/>
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -183,7 +183,7 @@
                     android:visibility="gone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Assigned To"/>
+                    android:hint="@string/assigned_to"/>
             </android.support.design.widget.TextInputLayout>
 
         </android.support.constraint.ConstraintLayout>

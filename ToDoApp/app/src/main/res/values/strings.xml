@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ToDoApp</string>
+    <string name="app_name">Taskly</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="sample_title">Sample title</string>
@@ -27,4 +27,11 @@
     <string name="added_new_item">Item added to the list</string>
     <string name="modified_existing_item">Modified item successfully</string>
     <string name="deleted_item">Item deleted successfully</string>
+    <string name="title">Title</string>
+    <string name="due_date">Due Date</string>
+    <string name="due_time">Due Time</string>
+    <string name="priority">Priority</string>
+    <string name="item_status">Item Status</string>
+    <string name="assigned_to">Assigned To</string>
+    <string name="time_picker_title">Due time</string>
 </resources>

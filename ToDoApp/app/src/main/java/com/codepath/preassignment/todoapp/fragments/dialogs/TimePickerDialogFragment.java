@@ -51,12 +51,12 @@ public class TimePickerDialogFragment extends DialogFragment {
         final Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
         calendar.setTime(date);
 
-        int hour = calendar.get(Calendar.HOUR);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minutes = calendar.get(Calendar.MINUTE);
 
         View v = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_time_picker, null);
         mTimePicker = (TimePicker) v.findViewById(R.id.dialog_time_picker);
-        mTimePicker.setIs24HourView(false);
+
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             mTimePicker.setMinute(minutes);
@@ -69,19 +69,19 @@ public class TimePickerDialogFragment extends DialogFragment {
 
         return new AlertDialog.Builder(getActivity())
                 .setView(v)
-                .setTitle(R.string.date_picker_title)
+                .setTitle(R.string.time_picker_title)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         int year = calendar.get(Calendar.YEAR);
                         int month = calendar.get(Calendar.MONTH);
                         int day = calendar.get(Calendar.DAY_OF_MONTH);
-
                         int hour;
                         int minute;
                         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
                             hour = mTimePicker.getHour();
                             minute =mTimePicker.getMinute();
+
                         }else{
                             hour =mTimePicker.getCurrentHour();
                             minute = mTimePicker.getCurrentMinute();
