@@ -80,10 +80,13 @@ public class ToDoListRecyclerViewAdapter extends
     }
 
     public UUID onItemDeleted(int position){
-        UUID tempId = mToDoListItems.get(position).getId();
-        mToDoListItems.remove(position);
-        notifyItemRemoved(position);
-        return tempId;
+        if(mToDoListItems.size() > 0){
+            UUID tempId = mToDoListItems.get(position).getId();
+            mToDoListItems.remove(position);
+            notifyItemRemoved(position);
+            return tempId;
+        }
+        return null;
     }
 
     public void deleteItem(UUID mId){

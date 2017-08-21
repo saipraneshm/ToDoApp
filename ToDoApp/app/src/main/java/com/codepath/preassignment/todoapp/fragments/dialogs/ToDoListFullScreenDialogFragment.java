@@ -16,7 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.codepath.preassignment.todoapp.Priority;
+import com.codepath.preassignment.todoapp.helper.Priority;
 import com.codepath.preassignment.todoapp.R;
 import com.codepath.preassignment.todoapp.database.ToDoListDB;
 import com.codepath.preassignment.todoapp.database.ToDoListItem;
@@ -24,6 +24,7 @@ import com.codepath.preassignment.todoapp.database.ToDoListItem;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -37,6 +38,8 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
     private static final String ARGS_IS_NEW_NOTE = "ISNEWNOTE";
     private static final int REQUEST_DATE = 0;
     private static final String DIALOG_DATE = "DialogDate";
+    private static final int REQUEST_TIME = 1;
+    private static final String DIALOG_TIME = "DialogTime";
     private Toolbar mDialogToolbar;
     private TextInputEditText mTitleEditText, mDueDateEditText, mDueTimeEditText, mPriorityEditText,
     mItemDescEditText, mItemStatusDesc;
@@ -163,7 +166,10 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
             mItemStatusDesc.setText(mToDoListItem.isTaskDone()?
                     getString(R.string.task_status_done) :
                     getString(R.string.task_status_incomplete));
-            updateDate(mToDoListItem.getDueDate());
+            if(!isNewNote){
+                updateDate(mToDoListItem.getDueDate());
+                updateTime(mToDoListItem.getDueDate());
+            }
         }
     }
 
@@ -281,6 +287,14 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         dialogFragment.show(fm, DIALOG_DATE);
     }
 
+    private void showTimeDialogPicker(){
+        FragmentManager fm = getFragmentManager();
+        TimePickerDialogFragment dialogFragment = TimePickerDialogFragment
+                .newInstance(mToDoListItem.getDueDate());
+        dialogFragment.setTargetFragment(this, REQUEST_TIME);
+        dialogFragment.show(fm, DIALOG_TIME);
+    }
+
     private boolean getTaskBoolVal(String str){
         return str.equals(getString(R.string.task_status_done));
     }
@@ -299,6 +313,7 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
                 showDateDialogPicker();
                 break;
             case R.id.time_edit_text:
+                showTimeDialogPicker();
                 break;
         }
     }
@@ -309,11 +324,21 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         if(requestCode == REQUEST_DATE){
             Date date = (Date) data.getSerializableExtra(DatePickerDialogFragment.EXTRA_DATE);
             updateDate(date);
+        }else if(requestCode == REQUEST_TIME){
+            Date date = (Date) data.getSerializableExtra(TimePickerDialogFragment.EXTRA_TIME);
+            updateTime(date);
         }
     }
 
+    private void updateTime(Date date) {
+        DateFormat dateFormat = SimpleDateFormat.getTimeInstance(DateFormat.SHORT, Locale.US);
+        String strDate = dateFormat.format(date);
+        mDueTimeEditText.setText(strDate);
+        mToDoListItem.setDueDate(date);
+    }
+
     private void updateDate(Date date) {
-        DateFormat dateFormat = SimpleDateFormat.getDateInstance();
+        DateFormat dateFormat = SimpleDateFormat.getDateInstance(DateFormat.MEDIUM, Locale.US);
         String strDate = dateFormat.format(date);
         mDueDateEditText.setText(strDate);
         mToDoListItem.setDueDate(date);

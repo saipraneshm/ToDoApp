@@ -3,8 +3,6 @@ package com.codepath.preassignment.todoapp.database;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.codepath.preassignment.todoapp.Priority;
-
 import java.util.Date;
 import java.util.UUID;
 
