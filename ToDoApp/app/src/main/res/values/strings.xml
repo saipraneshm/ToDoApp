@@ -23,4 +23,8 @@
     <string name="please_enter_the_title">Please enter the title</string>
     <string name="save_dialog_title">Save Item</string>
     <string name="save_dialog_message">Do you want to save the changes?</string>
+    <string name="dismiss">DISMISS</string>
+    <string name="added_new_item">Item added to the list</string>
+    <string name="modified_existing_item">Modified item successfully</string>
+    <string name="deleted_item">Item deleted successfully</string>
 </resources>

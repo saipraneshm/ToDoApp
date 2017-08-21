@@ -11,8 +11,11 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
@@ -44,10 +47,6 @@ import java.util.UUID;
 public class ToDoListFragment extends Fragment {
 
 
-    private static final String CREATE_NEW_TODO_DIALOG = "createNewTodoDialog";
-    private static final String EDIT_TODO_DIALOG = "editTodoDialog";
-    private static final int CREATE_NEW_ITEM = 0;
-    private static final int EDIT_ITEM = 1;
     private static final String OPEN_TODO_FULLSCREEN_DIALOG = "openFullScreenDialog";
     private static final int REQUEST_TO_OPEN_DIALOG = 54;
     private RecyclerView mRecyclerView;
@@ -56,6 +55,7 @@ public class ToDoListFragment extends Fragment {
     private FloatingActionButton mFAB;
     private ToDoListRecyclerViewAdapter mAdapter;
     private ToDoListDB mDB;
+    private CoordinatorLayout mCoordinatorLayout;
     private static final String TAG = ToDoListFragment.class.getSimpleName();
     private UUID mSelectedItem ;
     private Paint p = new Paint();
@@ -85,6 +85,7 @@ public class ToDoListFragment extends Fragment {
         mRecyclerView = (RecyclerView) view.findViewById(R.id.todo_list_rv);
         mLinearLayout = (LinearLayout) view.findViewById(R.id.display_add_item_ll);
         mAddItemButton = (AppCompatButton) view.findViewById(R.id.add_item_button);
+        mCoordinatorLayout = (CoordinatorLayout) view.findViewById(R.id.coordinator_layout_todo_list);
 
         mAddItemButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -207,21 +208,37 @@ public class ToDoListFragment extends Fragment {
                 case ADD:
                     Log.d(TAG, "calling addItem");
                     mDB.addItem(modifiedItem);
+                    showSnackBar(getString(R.string.added_new_item));
                     break;
                 case EDIT:
                     Log.d(TAG, "calling editItem");
                     mDB.updateItem(modifiedItem);
+                    showSnackBar(getString(R.string.modified_existing_item));
                     break;
                 case DELETE:
                     Log.d(TAG, "calling deleteItem");
                     mAdapter.deleteItem(modifiedItem.getId());
                     mDB.deleteItem(modifiedItem.getId());
+                    showSnackBar(getString(R.string.deleted_item));
                     break;
             }
             mAdapter.updateItems(mDB.getAllItems());
             updateUI();
         }
 
+    }
+
+    private void showSnackBar(String message){
+        final Snackbar snackbar = Snackbar.make(mCoordinatorLayout,
+                message,
+                Snackbar.LENGTH_SHORT);
+        snackbar.setActionTextColor(ContextCompat.getColor(getActivity(),R.color.colorPrimary))
+                .setAction(R.string.dismiss, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        snackbar.dismiss();
+                    }
+                }).show();
     }
 
     public void showDeleteAlertDialog(final int position){
@@ -235,6 +252,7 @@ public class ToDoListFragment extends Fragment {
                         itemDeleted = true;
                         mDB.deleteItem(mAdapter.onItemDeleted(position));
                         updateUI();
+                        showSnackBar(getString(R.string.deleted_item));
                     }
                 }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
                     @Override

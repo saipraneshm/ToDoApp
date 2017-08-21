@@ -8,8 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
@@ -23,14 +21,12 @@ import android.view.ViewGroup;
 
 import com.codepath.preassignment.todoapp.helper.Priority;
 import com.codepath.preassignment.todoapp.R;
-import com.codepath.preassignment.todoapp.database.ToDoListDB;
 import com.codepath.preassignment.todoapp.database.ToDoListItem;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.UUID;
 
 /**
  * Created by saip92 on 8/18/2017.
@@ -47,12 +43,9 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
     private static final String DIALOG_TIME = "DialogTime";
     public static final String EXTRA_ACTION = "ExtraAction";
     public static final String EXTRA_ITEM = "ExtraItem";
-    private Toolbar mDialogToolbar;
     private TextInputEditText mTitleEditText, mDueDateEditText, mDueTimeEditText, mPriorityEditText,
     mItemDescEditText, mItemStatusDesc;
-    private ToDoListDB mToDoListDB;
     private static final String ARGS_ITEM = "itemId";
-    private UUID mId;
     private boolean isNewNote = false;
     public enum DialogAction{
         ADD,
@@ -63,16 +56,10 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
     MenuItem editItem;
     MenuItem saveItem;
 
-    private Menu mMenu;
-
 
     boolean valuesChanged = false;
-    private OnDialogChangeListener mChangeListener;
     private ToDoListItem mToDoListItem;
 
-    public interface OnDialogChangeListener{
-        void onDialogClose(ToDoListItem modifiedItem, DialogAction action);
-    }
 
     public static ToDoListFullScreenDialogFragment newInstance(ToDoListItem listItem, boolean isNewNote){
         Bundle args = new Bundle();
@@ -96,7 +83,6 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(STYLE_NO_FRAME,R.style.AppTheme_NoActionBar);
-        mToDoListDB = ToDoListDB.get(getActivity());
         if(getArguments() != null) {
             mToDoListItem = getArguments().getParcelable(ARGS_ITEM);
             isNewNote = getArguments().getBoolean(ARGS_IS_NEW_NOTE);
@@ -120,8 +106,8 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         mDueDateEditText.setOnClickListener(this);
         mDueTimeEditText.setOnClickListener(this);
 
-        mDialogToolbar = (Toolbar) view.findViewById(R.id.dialog_toolbar);
-        mDialogToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+        Toolbar dialogToolbar = (Toolbar) view.findViewById(R.id.dialog_toolbar);
+        dialogToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(valuesChanged){
@@ -150,7 +136,7 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         });
 
 
-        mDialogToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+        dialogToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
 
@@ -175,12 +161,12 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
                 return true;
             }
         });
-        mDialogToolbar.inflateMenu(R.menu.dialog_menu);
-        mMenu = mDialogToolbar.getMenu();
-        editItem = mMenu.findItem(R.id.action_edit_item);
-        saveItem = mMenu.findItem(R.id.action_save_item);
+        dialogToolbar.inflateMenu(R.menu.dialog_menu);
+        Menu menu = dialogToolbar.getMenu();
+        editItem = menu.findItem(R.id.action_edit_item);
+        saveItem = menu.findItem(R.id.action_save_item);
         if(isNewNote){
-            mDialogToolbar.setTitle(R.string.add_new_item);
+            dialogToolbar.setTitle(R.string.add_new_item);
             editItem.setVisible(false);
             saveItem.setVisible(true);
             enableAllFields();
@@ -189,7 +175,7 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
             disableAllFields();
             saveItem.setVisible(false);
             editItem.setVisible(true);
-            mDialogToolbar.setTitle(R.string.edit_existing_item);
+            dialogToolbar.setTitle(R.string.edit_existing_item);
             updateUI();
         }
         return view;
@@ -384,9 +370,6 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         mToDoListItem.setDueDate(date);
     }
 
-    public void setChangeListener(OnDialogChangeListener changeListener) {
-        mChangeListener = changeListener;
-    }
 
 
     private void sendResult(int resultCode, DialogAction action, ToDoListItem listItem){
@@ -402,7 +385,6 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
     @Override
     public void onDetach() {
         super.onDetach();
-       // mChangeListener = null;
     }
 
 
