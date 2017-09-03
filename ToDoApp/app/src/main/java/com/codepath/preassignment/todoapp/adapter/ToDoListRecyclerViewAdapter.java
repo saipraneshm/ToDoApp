@@ -3,7 +3,6 @@ package com.codepath.preassignment.todoapp.adapter;
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -13,7 +12,7 @@ import android.view.ViewGroup;
 
 import com.codepath.preassignment.todoapp.R;
 import com.codepath.preassignment.todoapp.database.ToDoListItem;
-import com.codepath.preassignment.todoapp.helper.Priority;
+import com.codepath.preassignment.todoapp.utils.Priority;
 
 
 import java.text.DateFormat;
