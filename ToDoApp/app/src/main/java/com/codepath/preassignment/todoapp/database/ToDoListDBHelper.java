@@ -30,7 +30,7 @@ public class ToDoListDBHelper extends SQLiteOpenHelper {
                 ToDoListTable.COLS.TITLE + " TEXT , " +
                 ToDoListTable.COLS.BODY + " TEXT NOT NULL," +
                 ToDoListTable.COLS.ASSIGNED_TO + " TEXT," +
-                ToDoListTable.COLS.DATE_CREATED + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                ToDoListTable.COLS.DATE_CREATED + " TEXT, " +
                 ToDoListTable.COLS.DATE_UPDATED + " TEXT, " +
                 ToDoListTable.COLS.DUE_DATE  + " , " +
                 ToDoListTable.COLS.PRIORITY  + " INTEGER, " +
