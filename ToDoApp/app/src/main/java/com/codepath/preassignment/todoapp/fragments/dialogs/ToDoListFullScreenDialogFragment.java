@@ -11,9 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.codepath.preassignment.todoapp.service.TaskReminderService;
 import com.codepath.preassignment.todoapp.utils.Priority;
 import com.codepath.preassignment.todoapp.R;
 import com.codepath.preassignment.todoapp.database.ToDoListItem;
@@ -88,7 +87,6 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         setStyle(STYLE_NO_FRAME,R.style.AppTheme_NoActionBar);
         if(getArguments() != null) {
             mToDoListItem = getArguments().getParcelable(ARGS_ITEM);
-            Log.d(TAG,mToDoListItem.getDateCreated() + " check for this value");
             isNewNote = getArguments().getBoolean(ARGS_IS_NEW_NOTE);
         }
     }

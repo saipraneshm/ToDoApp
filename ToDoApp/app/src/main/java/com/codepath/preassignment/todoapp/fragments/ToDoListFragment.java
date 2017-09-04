@@ -35,7 +35,10 @@ import com.codepath.preassignment.todoapp.database.ToDoListDB;
 import com.codepath.preassignment.todoapp.database.ToDoListItem;
 import com.codepath.preassignment.todoapp.fragments.dialogs.ToDoListFullScreenDialogFragment;
 import com.codepath.preassignment.todoapp.fragments.dialogs.ToDoListFullScreenDialogFragment.DialogAction;
+import com.codepath.preassignment.todoapp.service.TaskReminderService;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.UUID;
 
 
@@ -60,16 +63,31 @@ public class ToDoListFragment extends Fragment {
     private UUID mSelectedItem ;
     private Paint p = new Paint();
     boolean itemDeleted = false;
+    private static final String EXTRA_TASK_ID = "ToDoListFragment.extraTaskID";
 
     public static ToDoListFragment newInstance(){
         return new ToDoListFragment();
     }
 
+    public static ToDoListFragment newInstance(UUID uuid){
+        Bundle args = new Bundle();
+        args.putSerializable(EXTRA_TASK_ID,uuid);
+
+        ToDoListFragment fragment = new ToDoListFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDB =  ToDoListDB.get(getActivity());
+        if(getArguments() != null){
+            mSelectedItem = (UUID) getArguments().getSerializable(EXTRA_TASK_ID);
+            if(mSelectedItem != null){
+                openDialog(false);
+            }
+        }
     }
 
 
@@ -208,17 +226,21 @@ public class ToDoListFragment extends Fragment {
             switch(action){
                 case ADD:
                     Log.d(TAG, "calling addItem");
+                    setTaskTimer(modifiedItem);
                     mDB.addItem(modifiedItem);
                     showSnackBar(getString(R.string.added_new_item));
                     break;
                 case EDIT:
                     Log.d(TAG, "calling editItem");
+                    TaskReminderService.cancelTaskReminder(getActivity(),modifiedItem);
+                    setTaskTimer(modifiedItem);
                     mDB.updateItem(modifiedItem);
                     showSnackBar(getString(R.string.modified_existing_item));
                     break;
                 case DELETE:
                     Log.d(TAG, "calling deleteItem");
                     mAdapter.deleteItem(modifiedItem.getId());
+                    TaskReminderService.cancelTaskReminder(getActivity(),modifiedItem);
                     mDB.deleteItem(modifiedItem.getId());
                     showSnackBar(getString(R.string.deleted_item));
                     break;
@@ -228,6 +250,22 @@ public class ToDoListFragment extends Fragment {
         }
 
     }
+
+    private void setTaskTimer(ToDoListItem item){
+        int currentTimeInMillis;
+        if(item.getDateCreated() == null){
+            currentTimeInMillis = (int) System.currentTimeMillis();
+            item.setDateCreated(currentTimeInMillis + "");
+        }
+        currentTimeInMillis = Integer.parseInt(item.getDateCreated());
+        item.setDateCreated(currentTimeInMillis + "");
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(item.getDueDate());
+        if(calendar.getTimeInMillis() > System.currentTimeMillis())
+            TaskReminderService.setTaskReminder(getActivity(),item);
+    }
+
+
 
     private void showSnackBar(String message){
         final Snackbar snackbar = Snackbar.make(mCoordinatorLayout,

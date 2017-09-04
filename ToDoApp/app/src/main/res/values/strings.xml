@@ -34,4 +34,5 @@
     <string name="item_status">Item Status</string>
     <string name="assigned_to">Assigned To</string>
     <string name="time_picker_title">Due time</string>
+    <string name="task_reminder_title">Task Reminder</string>
 </resources>
