@@ -25,6 +25,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+
 /**
  * Created by saip92 on 9/4/2017.
  */
@@ -56,10 +59,10 @@ public class TaskReminderService extends IntentService {
 
         int ALARM_TYPE = AlarmManager.RTC_WAKEUP;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Log.d(TAG, "Setting exact");
+           // Log.d(TAG, "Setting exact");
             alarmManager.setExact(ALARM_TYPE, calendar.getTimeInMillis(), pi);
         } else {
-            Log.d(TAG, "Calling set");
+          //  Log.d(TAG, "Calling set");
             alarmManager.set(ALARM_TYPE, calendar.getTimeInMillis(), pi);
         }
 
@@ -99,12 +102,13 @@ public class TaskReminderService extends IntentService {
                     int key = Integer.parseInt(item.getDateCreated());
                     Resources resources = getResources();
                     Intent i = ToDoListActivity.newIntent(this,taskId);
+                    i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK);
                     PendingIntent pi = PendingIntent.getActivity(this,
-                            key, i, 0);
+                            key, i,PendingIntent.FLAG_UPDATE_CURRENT);
 
                     Notification notification = new NotificationCompat.Builder(this)
                             .setTicker(Priority.getString(item.getPriority()))
-                            .setSmallIcon(android.R.drawable.ic_menu_report_image)
+                            .setSmallIcon(android.R.drawable.ic_popup_reminder)
                             .setContentTitle(resources.getString(R.string.task_reminder_title))
                             .setContentText(item.getTitle())
                             .setContentIntent(pi)

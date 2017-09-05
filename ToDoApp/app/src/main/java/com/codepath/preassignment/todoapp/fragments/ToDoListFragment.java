@@ -289,7 +289,9 @@ public class ToDoListFragment extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         itemDeleted = true;
-                        mDB.deleteItem(mAdapter.onItemDeleted(position));
+                        ToDoListItem item = mDB.getItem(mAdapter.onItemDeleted(position));
+                        TaskReminderService.cancelTaskReminder(getActivity(),item);
+                        mDB.deleteItem(item.getId());
                         updateUI();
                         showSnackBar(getString(R.string.deleted_item));
                     }
@@ -308,6 +310,9 @@ public class ToDoListFragment extends Fragment {
                 }
             }
         });
+        if(dialog.isShowing()){
+            dialog.dismiss();
+        }
         dialog.show();
     }
 
