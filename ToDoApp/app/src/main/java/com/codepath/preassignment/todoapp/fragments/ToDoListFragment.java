@@ -19,6 +19,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -64,6 +65,7 @@ public class ToDoListFragment extends Fragment {
     private Paint p = new Paint();
     boolean itemDeleted = false;
     private static final String EXTRA_TASK_ID = "ToDoListFragment.extraTaskID";
+    private AlertDialog deleteDialog;
 
     public static ToDoListFragment newInstance(){
         return new ToDoListFragment();
@@ -99,8 +101,8 @@ public class ToDoListFragment extends Fragment {
 
 
         View view = inflater.inflate(R.layout.fragment_to_do_list, container, false);
-        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        /*Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);*/
         mRecyclerView = (RecyclerView) view.findViewById(R.id.todo_list_rv);
         mLinearLayout = (LinearLayout) view.findViewById(R.id.display_add_item_ll);
         mAddItemButton = (AppCompatButton) view.findViewById(R.id.add_item_button);
@@ -116,6 +118,8 @@ public class ToDoListFragment extends Fragment {
         updateUI();
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mRecyclerView.addItemDecoration
+                (new DividerItemDecoration(mRecyclerView.getContext(), DividerItemDecoration.VERTICAL));
         mAdapter = new ToDoListRecyclerViewAdapter(getActivity(), mDB.getAllItems());
         mAdapter.setOnItemClickListener(new ToDoListRecyclerViewAdapter.onItemClickListener() {
             @Override
@@ -126,7 +130,7 @@ public class ToDoListFragment extends Fragment {
 
             @Override
             public void onItemLongPressed(int position) {
-                showDeleteAlertDialog(position);
+                //showDeleteAlertDialog(position);
             }
 
 
@@ -199,6 +203,11 @@ public class ToDoListFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onDestroyView() {
+        mAdapter.onDestroyView();
+        super.onDestroyView();
+    }
 
     void openDialog(boolean isNewItem){
         ToDoListItem listItem;
@@ -285,8 +294,8 @@ public class ToDoListFragment extends Fragment {
     }
 
     public void showDeleteAlertDialog(final int position){
-
-        AlertDialog dialog = new AlertDialog.Builder(getActivity())
+        if(deleteDialog!= null && deleteDialog.isShowing()) return;
+        deleteDialog = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.delete_dialog_title)
                 .setMessage(R.string.delete_dialog_message)
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
@@ -305,7 +314,7 @@ public class ToDoListFragment extends Fragment {
                         itemDeleted= false;
                     }
                 }).create();
-        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+        deleteDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialogInterface) {
                 if(!itemDeleted){
@@ -314,10 +323,8 @@ public class ToDoListFragment extends Fragment {
                 }
             }
         });
-        if(dialog.isShowing()){
-            dialog.dismiss();
-        }
-        dialog.show();
+        deleteDialog.show();
+
     }
 
     private void updateUI(){

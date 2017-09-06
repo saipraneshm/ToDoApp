@@ -29,7 +29,9 @@ import com.codepath.preassignment.todoapp.database.ToDoListItem;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 
 /**
@@ -403,6 +405,7 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
     }
 
     private void updateTime(Date date) {
+        date = checkDate(date);
         DateFormat dateFormat = SimpleDateFormat.getTimeInstance(DateFormat.SHORT, Locale.US);
         String strDate = dateFormat.format(date);
         mDueTimeEditText.setText(strDate);
@@ -410,10 +413,47 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
     }
 
     private void updateDate(Date date) {
+        date = checkDate(date);
+        updateTime(date);
         DateFormat dateFormat = SimpleDateFormat.getDateInstance(DateFormat.MEDIUM, Locale.US);
         String strDate = dateFormat.format(date);
         mDueDateEditText.setText(strDate);
         mToDoListItem.setDueDate(date);
+    }
+
+    //prevents from back dating
+    private Date checkDate(Date date){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+
+        int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
+        int currentMinute = calendar.get(Calendar.MINUTE);
+        int currentYear = calendar.get(Calendar.YEAR);
+        int currentMonth = calendar.get(Calendar.MONTH);
+        int currentDay = calendar.get(Calendar.DAY_OF_MONTH);
+
+        calendar.setTime(date);
+
+        int selectedYear = calendar.get(Calendar.YEAR);
+        int selectedMonth = calendar.get(Calendar.MONTH);
+        int selectedDay = calendar.get(Calendar.DAY_OF_MONTH);
+        int selectedHour = calendar.get(Calendar.HOUR_OF_DAY);
+        int selectedMinute = calendar.get(Calendar.MINUTE);
+
+        if(currentDay == selectedDay &&
+                currentMonth == selectedMonth && currentYear == selectedYear){
+            if(selectedHour < currentHour){
+                selectedHour = currentHour;
+            }
+            if(selectedHour == currentHour){
+                if(selectedMinute > currentMinute){
+                    selectedMinute = currentMinute;
+                }
+            }
+        }
+
+        return new GregorianCalendar(selectedYear,selectedMonth,selectedDay,
+                selectedHour, selectedMinute).getTime();
     }
 
 

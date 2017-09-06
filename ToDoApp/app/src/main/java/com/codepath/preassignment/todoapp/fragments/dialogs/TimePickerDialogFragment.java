@@ -51,6 +51,7 @@ public class TimePickerDialogFragment extends DialogFragment {
         final Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
         calendar.setTime(date);
 
+
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minutes = calendar.get(Calendar.MINUTE);
 

@@ -10,4 +10,5 @@
     <color name="textColorToDoItemTitle">#2B3D4D</color>
     <color name="colorWhite">#ffffff</color>
     <color name="colorDivider">#757575</color>
+    <color name="colorBlueTranslucent">#663479c4</color>
 </resources>
