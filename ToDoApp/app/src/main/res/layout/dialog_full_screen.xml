@@ -26,6 +26,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <android.support.v7.widget.SwitchCompat
+                android:id="@+id/reminder_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/set_reminder_text"
+                android:layout_marginTop="16dp"
+                android:textSize="16sp"
+                android:paddingLeft="8dp"
+                android:drawableLeft="@android:drawable/ic_lock_idle_alarm"
+                android:drawablePadding="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/item_title_til"
+                android:layout_marginRight="16dp"
+                app:layout_constraintRight_toRightOf="parent"
+                android:layout_marginLeft="16dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"/>
+
             <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -52,14 +69,16 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:layout_marginTop="16dp"
+                android:visibility="gone"
                 android:orientation="horizontal"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/item_title_til"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                android:id="@+id/linearLayout">
+                android:id="@+id/reminder_linearLayout"
+                app:layout_constraintHorizontal_bias="0.0"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@+id/reminder_switch">
 
                 <android.support.design.widget.TextInputLayout
                     android:id="@+id/due_date_til"
@@ -105,7 +124,7 @@
                 android:layout_marginTop="16dp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+                app:layout_constraintTop_toBottomOf="@+id/reminder_linearLayout"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp">
 

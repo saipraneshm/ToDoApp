@@ -47,6 +47,7 @@ public class ToDoListDB {
         contentValues.put(ToDoListTable.COLS.DUE_DATE, item.getDueDate().getTime());
         contentValues.put(ToDoListTable.COLS.PRIORITY, item.getPriority());
         contentValues.put(ToDoListTable.COLS.TASK_STATUS, item.isTaskDone() ? 1 : 0);
+        contentValues.put(ToDoListTable.COLS.REMINDER, item.hasReminder() ? 1 : 0);
 
         return contentValues;
     }

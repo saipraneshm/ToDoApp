@@ -10,6 +10,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
+import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -19,8 +20,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 
-import com.codepath.preassignment.todoapp.service.TaskReminderService;
 import com.codepath.preassignment.todoapp.utils.Priority;
 import com.codepath.preassignment.todoapp.R;
 import com.codepath.preassignment.todoapp.database.ToDoListItem;
@@ -47,6 +49,8 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
     public static final String EXTRA_ITEM = "ExtraItem";
     private TextInputEditText mTitleEditText, mDueDateEditText, mDueTimeEditText, mPriorityEditText,
     mItemDescEditText, mItemStatusDesc;
+    private SwitchCompat mReminderSwitch;
+    private LinearLayout mReminderLinearLayout;
     private static final String ARGS_ITEM = "itemId";
     private boolean isNewNote = false;
     public enum DialogAction{
@@ -102,11 +106,26 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         mPriorityEditText = (TextInputEditText)view.findViewById(R.id.priority_edit_text);
         mItemDescEditText = (TextInputEditText)view.findViewById(R.id.item_desc_edit_text);
         mItemStatusDesc = (TextInputEditText)view.findViewById(R.id.item_status_edit_text);
+        mReminderSwitch = (SwitchCompat)view.findViewById(R.id.reminder_switch);
+        mReminderLinearLayout = (LinearLayout) view.findViewById(R.id.reminder_linearLayout);
 
         mPriorityEditText.setOnClickListener(this);
         mItemStatusDesc.setOnClickListener(this);
         mDueDateEditText.setOnClickListener(this);
         mDueTimeEditText.setOnClickListener(this);
+        mReminderSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    mReminderLinearLayout.setVisibility(View.VISIBLE);
+                }else{
+                    mReminderLinearLayout.setVisibility(View.GONE);
+                }
+                if(mToDoListItem != null){
+                    mToDoListItem.setReminder(b);
+                }
+            }
+        });
 
         Toolbar dialogToolbar = (Toolbar) view.findViewById(R.id.dialog_toolbar);
         dialogToolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -198,7 +217,7 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-
+                        dismiss();
                     }
                 }).create();
         dialog.show();
@@ -212,6 +231,7 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
             mItemStatusDesc.setText(mToDoListItem.isTaskDone()?
                     getString(R.string.task_status_done) :
                     getString(R.string.task_status_incomplete));
+            mReminderSwitch.setChecked(mToDoListItem.hasReminder());
             updateDate(mToDoListItem.getDueDate());
             updateTime(mToDoListItem.getDueDate());
         }
@@ -229,6 +249,7 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         mPriorityEditText.setOnClickListener(this);
         mItemDescEditText.setOnClickListener(this);
         mItemStatusDesc.setOnClickListener(this);
+        mReminderSwitch.setClickable(true);
 
         mItemDescEditText.setFocusableInTouchMode(true);
 
@@ -241,6 +262,8 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
         mPriorityEditText.setOnClickListener(null);
         mItemDescEditText.setOnClickListener(null);
         mItemStatusDesc.setOnClickListener(null);
+        mReminderSwitch.setClickable(false);
+
 
         mTitleEditText.setFocusableInTouchMode(false);
         mItemDescEditText.setFocusableInTouchMode(false);

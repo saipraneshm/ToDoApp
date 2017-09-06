@@ -21,6 +21,7 @@ public class ToDoListItem implements Parcelable {
     private Date mDueDate;
     private int mPriority;
     private boolean mTaskStatus;
+    private boolean mHasReminder;
 
 
     //Automatically generates a unique sequence
@@ -28,6 +29,7 @@ public class ToDoListItem implements Parcelable {
         mId = UUID.randomUUID();
         mTaskStatus = false;
         mDueDate = new Date();
+        mHasReminder = false;
     }
 
     //Constructor to retrieve a todoList item
@@ -111,6 +113,13 @@ public class ToDoListItem implements Parcelable {
         mDueDate = dueDate;
     }
 
+    public boolean hasReminder() {
+        return mHasReminder;
+    }
+
+    public void setReminder(boolean hasReminder) {
+        mHasReminder = hasReminder;
+    }
 
     @Override
     public String toString() {
@@ -125,6 +134,7 @@ public class ToDoListItem implements Parcelable {
                 ", mPriority=" + mPriority +
                 '}';
     }
+
 
     @Override
     public int describeContents() {
@@ -142,6 +152,7 @@ public class ToDoListItem implements Parcelable {
         dest.writeLong(this.mDueDate != null ? this.mDueDate.getTime() : -1);
         dest.writeInt(this.mPriority);
         dest.writeByte(this.mTaskStatus ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.mHasReminder ? (byte) 1 : (byte) 0);
     }
 
     protected ToDoListItem(Parcel in) {
@@ -155,6 +166,7 @@ public class ToDoListItem implements Parcelable {
         this.mDueDate = tmpMDueDate == -1 ? null : new Date(tmpMDueDate);
         this.mPriority = in.readInt();
         this.mTaskStatus = in.readByte() != 0;
+        this.mHasReminder = in.readByte() != 0;
     }
 
     public static final Creator<ToDoListItem> CREATOR = new Creator<ToDoListItem>() {

@@ -252,17 +252,21 @@ public class ToDoListFragment extends Fragment {
     }
 
     private void setTaskTimer(ToDoListItem item){
-        int currentTimeInMillis;
-        if(item.getDateCreated() == null){
-            currentTimeInMillis = (int) System.currentTimeMillis();
+        if(item.hasReminder()){
+            int currentTimeInMillis;
+            if(item.getDateCreated() == null){
+                currentTimeInMillis = (int) System.currentTimeMillis();
+                item.setDateCreated(currentTimeInMillis + "");
+            }
+            currentTimeInMillis = Integer.parseInt(item.getDateCreated());
             item.setDateCreated(currentTimeInMillis + "");
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(item.getDueDate());
+            if(calendar.getTimeInMillis() > System.currentTimeMillis())
+                TaskReminderService.setTaskReminder(getActivity(),item);
+        }else{
+            TaskReminderService.cancelTaskReminder(getActivity(),item);
         }
-        currentTimeInMillis = Integer.parseInt(item.getDateCreated());
-        item.setDateCreated(currentTimeInMillis + "");
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(item.getDueDate());
-        if(calendar.getTimeInMillis() > System.currentTimeMillis())
-            TaskReminderService.setTaskReminder(getActivity(),item);
     }
 
 

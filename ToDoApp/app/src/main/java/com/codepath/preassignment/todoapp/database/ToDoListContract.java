@@ -25,6 +25,7 @@ public final class ToDoListContract {
                 public static final String DUE_DATE = "dueDate";
                 public static final String PRIORITY = "priority";
                 public static final String TASK_STATUS = "taskStatus";
+                public static final String REMINDER = "reminder";
 
             }
         }
