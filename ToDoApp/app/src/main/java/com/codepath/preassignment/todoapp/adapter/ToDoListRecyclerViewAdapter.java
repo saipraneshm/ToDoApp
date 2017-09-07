@@ -26,6 +26,7 @@ import com.codepath.preassignment.todoapp.utils.Priority;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -47,6 +48,7 @@ public class ToDoListRecyclerViewAdapter extends
     public interface onItemClickListener{
         void onItemSelected(UUID id, int position);
         void onItemLongPressed(int position);
+        void onAllItemsDeleted();
     }
 
     public ToDoListRecyclerViewAdapter(Context context, List<ToDoListItem> items){
@@ -81,24 +83,28 @@ public class ToDoListRecyclerViewAdapter extends
 
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.action_delete_items:
-                        SparseBooleanArray array = mMultiChoiceHelper.getCheckedItemPositions();
-                        int checkedItemCount = mMultiChoiceHelper.getCheckedItemCount();
-                        final int start = array.keyAt(0);
-                        final int end = array.keyAt(array.size() - 1);
+                SparseBooleanArray array = mMultiChoiceHelper.getCheckedItemPositions();
+                int checkedItemCount = mMultiChoiceHelper.getCheckedItemCount();
+                final int start = array.keyAt(0);
+                final int end = array.keyAt(array.size() - 1);
 
-                        Log.d(TAG, "array size: " + array.size() + ", start " + start
+                Log.d(TAG, "array size: " + array.size() + ", start " + start
                         + ", end " + end + ", checkedItemCount " + checkedItemCount);
 
-                        UUID[] test = new UUID[array.size()];
+                //UUID[] test = new UUID[array.size()];
+                HashMap<UUID, ToDoListItem> currentList = new HashMap<>();
 
-                        for(int i = 0 ; i < checkedItemCount; i++){
-                            int position = array.keyAt(i);
-                            Log.d(TAG,"Adapter position: " + position);
-                            test[i] = getUUID(position);
-                        }
-                        for(UUID id : test){
+                for(int i = 0 ; i < checkedItemCount; i++){
+                    int position = array.keyAt(i);
+                    Log.d(TAG,"Adapter position: " + position);
+                    UUID currentID = getUUID(position);
+                    currentList.put(currentID, mToDoListItems.get(position));
+                    //test[i] = getUUID(position);
+                }
+
+                switch (item.getItemId()) {
+                    case R.id.action_delete_items:
+                        for(UUID id : currentList.keySet()){
                             ToDoListDB db= ToDoListDB.get(mContext);
                             if(id != null){
                                 deleteItem(id);
@@ -106,6 +112,19 @@ public class ToDoListRecyclerViewAdapter extends
                             }
                         }
 
+                        if(mToDoListItems.size() == 0){
+                            mOnItemClickListener.onAllItemsDeleted();
+                        }
+                        mode.finish();
+                        return true;
+                    case R.id.action_done:
+                        for(UUID id : currentList.keySet()){
+                            ToDoListDB db = ToDoListDB.get(mContext);
+                            if(id != null){
+                                currentList.get(id).setTaskStatus(true);
+                                db.updateItem(currentList.get(id));
+                            }
+                        }
                         mode.finish();
                         return true;
                 }

@@ -133,6 +133,11 @@ public class ToDoListFragment extends Fragment {
                 //showDeleteAlertDialog(position);
             }
 
+            @Override
+            public void onAllItemsDeleted() {
+                updateUI();
+            }
+
 
         });
         mRecyclerView.setAdapter(mAdapter);
@@ -343,7 +348,6 @@ public class ToDoListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         updateUI();
-       /* mAdapter.notifyDataSetChanged();*/
     }
 
 }
