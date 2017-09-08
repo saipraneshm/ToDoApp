@@ -3,6 +3,7 @@ package com.codepath.preassignment.todoapp.adapter;
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Parcelable;
+import android.os.SystemClock;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
@@ -38,20 +39,25 @@ import java.util.UUID;
 public class ToDoListRecyclerViewAdapter extends
         RecyclerView.Adapter<ToDoListRecyclerViewAdapter.ToDoListItemViewHolder> {
 
-    Context mContext;
-    List<ToDoListItem> mToDoListItems;
-    onItemClickListener mOnItemClickListener;
-    MultiChoiceHelper mMultiChoiceHelper;
+    private Context mContext;
+    private List<ToDoListItem> mToDoListItems;
+    private onItemClickListener mOnItemClickListener;
+    private MultiChoiceHelper mMultiChoiceHelper;
+    private boolean isActive = true;
+    private boolean isClickable = true;
 
 
     private static final String TAG = ToDoListRecyclerViewAdapter.class.getSimpleName();
     public interface onItemClickListener{
         void onItemSelected(UUID id, int position);
-        void onItemLongPressed(int position);
         void onAllItemsDeleted();
+        void onItemsMarkedDone();
+        void onActionModeEnabled();
+        void onActionModeDisabled();
     }
 
-    public ToDoListRecyclerViewAdapter(Context context, List<ToDoListItem> items){
+    public ToDoListRecyclerViewAdapter(Context context, List<ToDoListItem> items, boolean active){
+        isActive = active;
         mContext = context;
         mToDoListItems = items;
         mMultiChoiceHelper = new MultiChoiceHelper((AppCompatActivity) context, this);
@@ -77,7 +83,9 @@ public class ToDoListRecyclerViewAdapter extends
 
             @Override
             public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                if(!isActive) menu.getItem(0).setVisible(false);
                 updateSelectedCountDisplay(mode);
+                mOnItemClickListener.onActionModeEnabled();
                 return true;
             }
 
@@ -91,17 +99,14 @@ public class ToDoListRecyclerViewAdapter extends
                 Log.d(TAG, "array size: " + array.size() + ", start " + start
                         + ", end " + end + ", checkedItemCount " + checkedItemCount);
 
-                //UUID[] test = new UUID[array.size()];
                 HashMap<UUID, ToDoListItem> currentList = new HashMap<>();
 
                 for(int i = 0 ; i < checkedItemCount; i++){
                     int position = array.keyAt(i);
-                    Log.d(TAG,"Adapter position: " + position);
+                  //  Log.d(TAG,"Adapter position: " + position);
                     UUID currentID = getUUID(position);
                     currentList.put(currentID, mToDoListItems.get(position));
-                    //test[i] = getUUID(position);
                 }
-
                 switch (item.getItemId()) {
                     case R.id.action_delete_items:
                         for(UUID id : currentList.keySet()){
@@ -118,13 +123,23 @@ public class ToDoListRecyclerViewAdapter extends
                         mode.finish();
                         return true;
                     case R.id.action_done:
+                        ToDoListItem toDoListItem;
                         for(UUID id : currentList.keySet()){
                             ToDoListDB db = ToDoListDB.get(mContext);
+
                             if(id != null){
-                                currentList.get(id).setTaskStatus(true);
-                                db.updateItem(currentList.get(id));
+                                deleteItem(id);
+                                toDoListItem = currentList.get(id);
+                                toDoListItem.setTaskStatus(true);
+                                toDoListItem.setLastUpdated(SystemClock.currentThreadTimeMillis()
+                                        + "");
+                                db.updateItem(toDoListItem);
                             }
                         }
+                        if(checkedItemCount > 0){
+                            mOnItemClickListener.onItemsMarkedDone();
+                        }
+
                         mode.finish();
                         return true;
                 }
@@ -133,13 +148,18 @@ public class ToDoListRecyclerViewAdapter extends
 
             @Override
             public void onDestroyActionMode(ActionMode mode) {
-
+                notifyDataSetChanged();
+                mOnItemClickListener.onActionModeDisabled();
             }
         });
     }
 
     public void setOnItemClickListener(onItemClickListener onItemClickListener) {
         mOnItemClickListener = onItemClickListener;
+    }
+
+    public void setClickable(boolean val){
+        isClickable = val;
     }
 
     public Parcelable onSaveInstanceState() {
@@ -177,10 +197,6 @@ public class ToDoListRecyclerViewAdapter extends
             mToDoListItems.clear();
             mToDoListItems.addAll(items);
             if(mToDoListItems.size() > 0){
-                //Log.d("CHECK", "calling notifydatasetchanged");
-                for(ToDoListItem item : items){
-                    Log.d("CHECK", item.getTitle()  + " <- checking this item");
-                }
                 notifyDataSetChanged();
             }
         }
@@ -233,15 +249,20 @@ public class ToDoListRecyclerViewAdapter extends
             mPriorityTv = (AppCompatTextView) view.findViewById(R.id.priority_tv);
             mDueDateTv = (AppCompatTextView) view.findViewById(R.id.date_tv);
             mDueTimeTv = (AppCompatTextView) view.findViewById(R.id.time_tv);
-            setOnClickListener(this);
+            if(isClickable)
+                setOnClickListener(this);
+            else
+                setOnClickListener(null);
         }
 
         void bindItem(ToDoListItem item){
             if(item != null){
+                if(item.isTaskDone()) itemView.setAlpha(0.5f);
                 mItem = item;
                 mTitleTv.setText(item.getTitle());
                 setPriorityTv(item.getPriority());
-                updateDate(item.getDueDate());
+                if(mItem.hasReminder())
+                    updateDate(item.getDueDate());
             }
         }
 
@@ -288,9 +309,6 @@ public class ToDoListRecyclerViewAdapter extends
 
         @Override
         public boolean onLongClick(View view) {
-            /*if(mItem != null){
-                mOnItemClickListener.onItemLongPressed(getAdapterPosition());
-            }*/
             return false;
         }
     }

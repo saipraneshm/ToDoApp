@@ -37,6 +37,8 @@
     <string name="task_reminder_title">Task Reminder</string>
     <string name="set_reminder_text">Reminder</string>
     <string name="complete_task">Complete task</string>
+    <string name="show_more_items">Show completed items</string>
+    <string name="hide_completed_tasks">Hide Completed items</string>
     <plurals name="selected">
         <item quantity="other">%1$d selected</item>
     </plurals>

@@ -16,13 +16,12 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -39,7 +38,6 @@ import com.codepath.preassignment.todoapp.fragments.dialogs.ToDoListFullScreenDi
 import com.codepath.preassignment.todoapp.service.TaskReminderService;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.UUID;
 
 
@@ -53,11 +51,12 @@ public class ToDoListFragment extends Fragment {
 
     private static final String OPEN_TODO_FULLSCREEN_DIALOG = "openFullScreenDialog";
     private static final int REQUEST_TO_OPEN_DIALOG = 54;
-    private RecyclerView mRecyclerView;
+    private RecyclerView mToDoListRv, mCompletedTasksRv;
     private LinearLayout mLinearLayout;
-    private AppCompatButton mAddItemButton;
+    private NestedScrollView mNestedScrollView;
+    private AppCompatButton mAddItemButton, mShowCompletedItemsButton;
     private FloatingActionButton mFAB;
-    private ToDoListRecyclerViewAdapter mAdapter;
+    private ToDoListRecyclerViewAdapter mToDoListAdapter, mTaskCompletedAdapter;
     private ToDoListDB mDB;
     private CoordinatorLayout mCoordinatorLayout;
     private static final String TAG = ToDoListFragment.class.getSimpleName();
@@ -92,6 +91,7 @@ public class ToDoListFragment extends Fragment {
         }
     }
 
+    ToDoListRecyclerViewAdapter.onItemClickListener mNonCompletedTasks, mCompletedTasks;
 
 
     @Nullable
@@ -99,13 +99,74 @@ public class ToDoListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
+        mNonCompletedTasks = new ToDoListRecyclerViewAdapter.onItemClickListener() {
+            @Override
+            public void onItemSelected(UUID id, int position) {
+                mSelectedItem = id;
+                openDialog(false);
+            }
 
+            @Override
+            public void onAllItemsDeleted() {
+                updateUI();
+            }
+
+            @Override
+            public void onItemsMarkedDone() {
+                updateUI();
+                mTaskCompletedAdapter.updateItems(mDB.getAllTaskCompletedItems());
+                mTaskCompletedAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onActionModeEnabled() {
+                mTaskCompletedAdapter.setClickable(false);
+                mTaskCompletedAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onActionModeDisabled() {
+                mTaskCompletedAdapter.setClickable(true);
+                mTaskCompletedAdapter.notifyDataSetChanged();
+            }
+        };
+        mCompletedTasks = new ToDoListRecyclerViewAdapter.onItemClickListener() {
+            @Override
+            public void onItemSelected(UUID id, int position) {
+                mSelectedItem = id;
+                openDialog(false);
+            }
+
+            @Override
+            public void onAllItemsDeleted() {
+                updateUI();
+            }
+
+            @Override
+            public void onItemsMarkedDone() {
+
+            }
+
+            @Override
+            public void onActionModeEnabled() {
+                mToDoListAdapter.setClickable(false);
+                mToDoListAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onActionModeDisabled() {
+                mToDoListAdapter.setClickable(true);
+                mToDoListAdapter.notifyDataSetChanged();
+            }
+
+        };
         View view = inflater.inflate(R.layout.fragment_to_do_list, container, false);
-        /*Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);*/
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.todo_list_rv);
-        mLinearLayout = (LinearLayout) view.findViewById(R.id.display_add_item_ll);
+        mToDoListRv = (RecyclerView) view.findViewById(R.id.todo_list_rv);
+        mCompletedTasksRv = (RecyclerView) view.findViewById(R.id.done_list_rv);
+        mNestedScrollView = (NestedScrollView) view.findViewById(R.id.nested_scroll_view);
+        mLinearLayout = (LinearLayout) view.findViewById(R.id.linear_layout_display_msg_btn);
         mAddItemButton = (AppCompatButton) view.findViewById(R.id.add_item_button);
+        mShowCompletedItemsButton = (AppCompatButton) view.findViewById(R.id.show_completed_items_button);
         mCoordinatorLayout = (CoordinatorLayout) view.findViewById(R.id.coordinator_layout_todo_list);
 
         mAddItemButton.setOnClickListener(new View.OnClickListener() {
@@ -115,32 +176,42 @@ public class ToDoListFragment extends Fragment {
             }
         });
 
+        mShowCompletedItemsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean isVisible = mCompletedTasksRv.getVisibility() == View.VISIBLE;
+                if(isVisible){
+                    mShowCompletedItemsButton.setText(getString(R.string.show_more_items));
+                    mCompletedTasksRv.setVisibility(View.GONE);
+                }else{
+                    mShowCompletedItemsButton.setText(getString(R.string.hide_completed_tasks));
+                    mCompletedTasksRv.setVisibility(View.VISIBLE);
+                }
+
+            }
+        });
+
+        for(ToDoListItem item : mDB.getAllTaskCompletedItems()){
+            Log.d(TAG, item.getTitle());
+        }
         updateUI();
 
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mRecyclerView.addItemDecoration
-                (new DividerItemDecoration(mRecyclerView.getContext(), DividerItemDecoration.VERTICAL));
-        mAdapter = new ToDoListRecyclerViewAdapter(getActivity(), mDB.getAllItems());
-        mAdapter.setOnItemClickListener(new ToDoListRecyclerViewAdapter.onItemClickListener() {
-            @Override
-            public void onItemSelected(UUID id, int position) {
-                mSelectedItem = id;
-                openDialog(false);
-            }
+        mToDoListRv.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mToDoListRv.addItemDecoration
+                (new DividerItemDecoration(mToDoListRv.getContext(), DividerItemDecoration.VERTICAL));
 
-            @Override
-            public void onItemLongPressed(int position) {
-                //showDeleteAlertDialog(position);
-            }
+        mToDoListAdapter = new ToDoListRecyclerViewAdapter(getActivity(), mDB.getAllItems(), true);
 
-            @Override
-            public void onAllItemsDeleted() {
-                updateUI();
-            }
+        mToDoListAdapter.setOnItemClickListener(mNonCompletedTasks);
+        mToDoListRv.setAdapter(mToDoListAdapter);
 
+        mCompletedTasksRv.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mCompletedTasksRv.addItemDecoration(new DividerItemDecoration(mToDoListRv.getContext(),
+                DividerItemDecoration.VERTICAL));
+        mTaskCompletedAdapter = new ToDoListRecyclerViewAdapter(getActivity(), mDB.getAllTaskCompletedItems() , false);
+        mTaskCompletedAdapter.setOnItemClickListener(mCompletedTasks);
 
-        });
-        mRecyclerView.setAdapter(mAdapter);
+        mCompletedTasksRv.setAdapter(mTaskCompletedAdapter);
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT){
@@ -196,7 +267,7 @@ public class ToDoListFragment extends Fragment {
                 }
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
-        }).attachToRecyclerView(mRecyclerView);
+        }).attachToRecyclerView(mToDoListRv);
         mFAB = (FloatingActionButton) view.findViewById(R.id.add_item_fab);
         mFAB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -210,7 +281,7 @@ public class ToDoListFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        mAdapter.onDestroyView();
+        mToDoListAdapter.onDestroyView();
         super.onDestroyView();
     }
 
@@ -253,13 +324,13 @@ public class ToDoListFragment extends Fragment {
                     break;
                 case DELETE:
                     Log.d(TAG, "calling deleteItem");
-                    mAdapter.deleteItem(modifiedItem.getId());
+                    mToDoListAdapter.deleteItem(modifiedItem.getId());
                     TaskReminderService.cancelTaskReminder(getActivity(),modifiedItem);
                     mDB.deleteItem(modifiedItem.getId());
                     showSnackBar(getString(R.string.deleted_item));
                     break;
             }
-            mAdapter.updateItems(mDB.getAllItems());
+            mToDoListAdapter.updateItems(mDB.getAllItems());
             updateUI();
         }
 
@@ -307,7 +378,7 @@ public class ToDoListFragment extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         itemDeleted = true;
-                        ToDoListItem item = mDB.getItem(mAdapter.onItemDeleted(position));
+                        ToDoListItem item = mDB.getItem(mToDoListAdapter.onItemDeleted(position));
                         TaskReminderService.cancelTaskReminder(getActivity(),item);
                         mDB.deleteItem(item.getId());
                         updateUI();
@@ -324,7 +395,7 @@ public class ToDoListFragment extends Fragment {
             public void onDismiss(DialogInterface dialogInterface) {
                 if(!itemDeleted){
                     Log.d(TAG, "calling notify item changed");
-                    mAdapter.notifyItemChanged(position);
+                    mToDoListAdapter.notifyItemChanged(position);
                 }
             }
         });
@@ -333,14 +404,17 @@ public class ToDoListFragment extends Fragment {
     }
 
     private void updateUI(){
-        int itemCount = mDB.getAllItems().size();
-        if(itemCount > 0){
+        int nonCompletedTasks = mDB.getAllItems().size();
+        int completedTasks = mDB.getAllTaskCompletedItems().size();
+        if(nonCompletedTasks > 0 || completedTasks > 0){
+            mToDoListRv.setVisibility(View.VISIBLE);
+            mShowCompletedItemsButton.setVisibility(View.VISIBLE);
             mLinearLayout.setVisibility(View.GONE);
-            mRecyclerView.setVisibility(View.VISIBLE);
         }
-        if(itemCount == 0){
-            mRecyclerView.setVisibility(View.GONE);
+        if(nonCompletedTasks == 0 && completedTasks == 0){
             mLinearLayout.setVisibility(View.VISIBLE);
+            mToDoListRv.setVisibility(View.GONE);
+            mShowCompletedItemsButton.setVisibility(View.GONE);
         }
     }
 

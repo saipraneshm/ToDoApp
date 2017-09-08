@@ -64,14 +64,32 @@ public class ToDoListDB {
         Log.d(TAG, "Result of deleting a record: " + result);
     }
 
-    private ToDoListCursorWrapper queryToDoListItems(String where ,String[] whereArgs){
+    public List<ToDoListItem> getAllTaskCompletedItems(){
+        List<ToDoListItem> items = new ArrayList<>();
+
+        ToDoListCursorWrapper cursor = queryToDoListItems(ToDoListTable.COLS.TASK_STATUS + " = ?",
+                new String[]{"1"}, ToDoListTable.COLS.DATE_UPDATED + " DESC");
+        try{
+            cursor.moveToFirst();
+            while(!cursor.isAfterLast()){
+                items.add(cursor.getToDoListItem());
+                cursor.moveToNext();
+            }
+        }finally {
+            cursor.close();
+        }
+        return items;
+    }
+
+    private ToDoListCursorWrapper queryToDoListItems(String where ,String[] whereArgs,
+                                                     String priority){
         Cursor cursor = mDatabase.query(ToDoListTable.NAME,
                 null,
                 where,
                 whereArgs,
                 null,
                 null,
-                ToDoListTable.COLS.PRIORITY);
+                priority);
         return new ToDoListCursorWrapper(cursor);
     }
 
@@ -88,7 +106,8 @@ public class ToDoListDB {
     public List<ToDoListItem> getAllItems(){
         List<ToDoListItem> items = new ArrayList<>();
 
-        ToDoListCursorWrapper cursor = queryToDoListItems(null, null);
+        ToDoListCursorWrapper cursor = queryToDoListItems(ToDoListTable.COLS.TASK_STATUS + " = ?",
+                new String[]{"0"}, null);
         try{
             cursor.moveToFirst();
             while(!cursor.isAfterLast()){
@@ -104,7 +123,7 @@ public class ToDoListDB {
     public ToDoListItem getItem(UUID uuid){
         String uuidString = uuid.toString();
         ToDoListCursorWrapper cursor = queryToDoListItems( ToDoListTable.COLS.UUID + "= ?",
-                new String[]{uuidString});
+                new String[]{uuidString}, ToDoListTable.COLS.PRIORITY);
         try{
             if(cursor.getCount() == 0){
                 return null;
