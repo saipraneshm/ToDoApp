@@ -120,14 +120,14 @@ public class ToDoListFragment extends Fragment {
 
             @Override
             public void onActionModeEnabled() {
-                mTaskCompletedAdapter.setClickable(false);
-                mTaskCompletedAdapter.notifyDataSetChanged();
+                /*mTaskCompletedAdapter.setClickable(false);
+                mTaskCompletedAdapter.notifyDataSetChanged();*/
             }
 
             @Override
             public void onActionModeDisabled() {
-                mTaskCompletedAdapter.setClickable(true);
-                mTaskCompletedAdapter.notifyDataSetChanged();
+                /*mTaskCompletedAdapter.setClickable(true);
+                mTaskCompletedAdapter.notifyDataSetChanged();*/
             }
         };
         mCompletedTasks = new ToDoListRecyclerViewAdapter.onItemClickListener() {
@@ -149,14 +149,14 @@ public class ToDoListFragment extends Fragment {
 
             @Override
             public void onActionModeEnabled() {
-                mToDoListAdapter.setClickable(false);
-                mToDoListAdapter.notifyDataSetChanged();
+                /*mToDoListAdapter.setClickable(false);
+                mToDoListAdapter.notifyDataSetChanged();*/
             }
 
             @Override
             public void onActionModeDisabled() {
-                mToDoListAdapter.setClickable(true);
-                mToDoListAdapter.notifyDataSetChanged();
+                /*mToDoListAdapter.setClickable(true);
+                mToDoListAdapter.notifyDataSetChanged();*/
             }
 
         };
@@ -331,6 +331,7 @@ public class ToDoListFragment extends Fragment {
                     break;
             }
             mToDoListAdapter.updateItems(mDB.getAllItems());
+            mTaskCompletedAdapter.updateItems(mDB.getAllTaskCompletedItems());
             updateUI();
         }
 

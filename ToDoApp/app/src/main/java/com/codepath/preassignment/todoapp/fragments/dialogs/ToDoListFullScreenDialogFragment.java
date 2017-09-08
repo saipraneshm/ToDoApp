@@ -193,8 +193,13 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
             updateUI();
         }else{
             disableAllFields();
-            saveItem.setVisible(false);
-            editItem.setVisible(true);
+            if(!mToDoListItem.isTaskDone()) {
+                saveItem.setVisible(false);
+                editItem.setVisible(true);
+            }else{
+                saveItem.setVisible(false);
+                editItem.setVisible(false);
+            }
             dialogToolbar.setTitle(R.string.edit_existing_item);
             updateUI();
         }
@@ -446,7 +451,7 @@ public class ToDoListFullScreenDialogFragment extends DialogFragment implements 
                 selectedHour = currentHour;
             }
             if(selectedHour == currentHour){
-                if(selectedMinute > currentMinute){
+                if(selectedMinute < currentMinute){
                     selectedMinute = currentMinute;
                 }
             }

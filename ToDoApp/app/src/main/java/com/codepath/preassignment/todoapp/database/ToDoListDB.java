@@ -107,7 +107,7 @@ public class ToDoListDB {
         List<ToDoListItem> items = new ArrayList<>();
 
         ToDoListCursorWrapper cursor = queryToDoListItems(ToDoListTable.COLS.TASK_STATUS + " = ?",
-                new String[]{"0"}, null);
+                new String[]{"0"}, ToDoListTable.COLS.PRIORITY);
         try{
             cursor.moveToFirst();
             while(!cursor.isAfterLast()){
